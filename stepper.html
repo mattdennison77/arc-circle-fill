@@ -333,10 +333,7 @@ async function fetchData() {
   setStatus('', '<span class="spin"></span>Fetching...');
   showMsg('Fetching coordinates<br>from GitHub...');
   try {
-    const r = await fetch(URL + '?t=' + Date.now(), {
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-    });
+    const r = await fetch(URL + '?nocache=' + Date.now() + '&r=' + Math.random());
     if (!r.ok) throw new Error('HTTP ' + r.status);
     parse(await r.text());
   } catch(e) {
