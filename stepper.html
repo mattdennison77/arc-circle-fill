@@ -208,8 +208,9 @@
     align-items: stretch;
     height: 40vh;
     overflow: hidden;
+    touch-action: none; /* prevent browser handling touches in preview */
   }
-  .preview svg { flex: 1; width: 100%; min-height: 0; }
+  .preview svg { flex: 1; width: 100%; min-height: 0; touch-action: none; }
 
   /* Rotation controls — below the SVG */
   .preview-controls {
@@ -392,7 +393,7 @@ function applyViewTransform() {
     .setAttribute('viewBox', `${cx - w/2} ${cy - h/2} ${w} ${h}`);
 }
 
-// Touch handlers for pinch-zoom and pan
+// Touch handlers for pinch-zoom and pan — preview area only
 (function() {
   let t0 = null, d0 = null;
 
@@ -403,19 +404,21 @@ function applyViewTransform() {
     if (!el) return;
 
     el.addEventListener('touchstart', e => {
+      // Only handle touches that start inside the preview SVG area (not buttons)
+      if (e.target.closest('.preview-controls')) return;
+      e.preventDefault(); // prevent page zoom/scroll
       if (e.touches.length === 1) { t0 = e.touches[0]; d0 = null; }
       else if (e.touches.length === 2) { d0 = tdist(e.touches[0], e.touches[1]); t0 = null; }
-      e.stopPropagation();
-    }, { passive: true });
+    }, { passive: false });
 
     el.addEventListener('touchmove', e => {
-      e.preventDefault();
+      if (e.target.closest('.preview-controls')) return;
+      e.preventDefault(); // prevent page scroll
       if (!baseVB) return;
       const svgEl = document.getElementById('preview-svg');
       const sw = svgEl.clientWidth || 300, sh = svgEl.clientHeight || 150;
 
       if (e.touches.length === 1 && t0) {
-        // Pan
         const dx = e.touches[0].clientX - t0.clientX;
         const dy = e.touches[0].clientY - t0.clientY;
         viewPanX += (dx / sw) * (baseVB.w / viewZoom);
@@ -423,7 +426,6 @@ function applyViewTransform() {
         t0 = e.touches[0];
         applyViewTransform();
       } else if (e.touches.length === 2 && d0 !== null) {
-        // Pinch zoom
         const d1 = tdist(e.touches[0], e.touches[1]);
         viewZoom = Math.max(0.5, Math.min(20, viewZoom * (d1 / d0)));
         d0 = d1;
@@ -432,11 +434,12 @@ function applyViewTransform() {
     }, { passive: false });
 
     el.addEventListener('touchend', e => {
+      if (e.target.closest('.preview-controls')) return;
+      e.preventDefault();
       if (e.touches.length < 2) d0 = null;
       if (e.touches.length === 1) t0 = e.touches[0];
       if (e.touches.length === 0) t0 = null;
-      e.stopPropagation();
-    }, { passive: true });
+    }, { passive: false });
   });
 })();
 
