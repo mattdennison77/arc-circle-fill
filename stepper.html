@@ -119,11 +119,11 @@
   /* Active overrides */
   .row-active .r-arc  { color: #4f8fff; font-size: 13px; }
   .row-active .r-step { color: #4f8fff; font-size: 13px; }
-  .row-active .r-val  { font-size: clamp(18px, 8vw, 42px); color: #ffffff; font-weight: bold; }
+  .row-active .r-val  { color: #ffffff; font-weight: bold; } /* font-size set dynamically */
 
   /* Previous/next font scales too */
   .row-prev .r-val,
-  .row-next .r-val { font-size: clamp(13px, 4vw, 22px); }
+  .row-next .r-val { font-size: clamp(12px, 3.5vw, 18px); }
 
   /* Nav buttons */
   .nav {
@@ -666,6 +666,55 @@ function drawPreview() {
   html += `<line x1="${ox}" y1="${oy-armLen}" x2="${ox}" y2="${oy+armLen}" stroke="#cc0000" stroke-width="${origSW}"/>`;
   html += `<circle cx="${ox}" cy="${oy}" r="${Math.max(1.5, 3/viewZoom)}" fill="#cc0000" stroke="none"/>`;
 
+  // ── Radius dimension lines ────────────────────────────────────────────────
+  // For each arc draw a dimension arrow from centre to arc edge at mid-angle
+  const dimSW   = Math.max(0.3, 0.8 / viewZoom);
+  const headLen = Math.max(3, 6 / viewZoom);
+  const fontSize = Math.max(6, 11 / viewZoom);
+
+  arcData.forEach((ad, ai) => {
+    // Use mid angle of arc for the dimension line direction
+    const midA = ad.startA + ad.sweep / 2;
+    const ux = Math.cos(midA), uy = Math.sin(midA);
+
+    // Centre point
+    const [cxP, cyP] = toSVG(ad.cx, ad.cy, minSx, minSy, scale);
+
+    // Arc edge point
+    const edgeX = ad.cx + ad.r * ux;
+    const edgeY = ad.cy + ad.r * uy;
+    const [exP, eyP] = toSVG(edgeX, edgeY, minSx, minSy, scale);
+
+    // Direction vector in page space
+    const ddx = exP - cxP, ddy = eyP - cyP;
+    const dl  = Math.hypot(ddx, ddy) || 1;
+    const dux = ddx / dl, duy = ddy / dl;
+
+    // Perpendicular for arrowhead
+    const px = -duy, py = dux;
+
+    // Arrowhead at arc edge
+    const ax1 = exP - dux * headLen + px * headLen * 0.4;
+    const ay1 = eyP - duy * headLen + py * headLen * 0.4;
+    const ax2 = exP - dux * headLen - px * headLen * 0.4;
+    const ay2 = eyP - duy * headLen - py * headLen * 0.4;
+
+    // Small dot at centre
+    html += `<circle cx="${cxP.toFixed(2)}" cy="${cyP.toFixed(2)}" r="${Math.max(1, 2/viewZoom)}" fill="#555" stroke="none"/>`;
+
+    // Dimension line
+    html += `<line x1="${cxP.toFixed(2)}" y1="${cyP.toFixed(2)}" x2="${exP.toFixed(2)}" y2="${eyP.toFixed(2)}" stroke="#555" stroke-width="${dimSW}" stroke-dasharray="${Math.max(2, 4/viewZoom)},${Math.max(1.5, 3/viewZoom)}"/>`;
+
+    // Arrowhead
+    html += `<polygon points="${exP.toFixed(2)},${eyP.toFixed(2)} ${ax1.toFixed(2)},${ay1.toFixed(2)} ${ax2.toFixed(2)},${ay2.toFixed(2)}" fill="#555" stroke="none"/>`;
+
+    // Label — offset perpendicular to the line so it doesn't overlap
+    const labelX = (cxP + exP) / 2 + px * fontSize * 1.2;
+    const labelY = (cyP + eyP) / 2 + py * fontSize * 1.2;
+    const arcLabel = arcData.length > 1 ? `A${ai+1} R${ad.r.toFixed(2)}mm` : `R${ad.r.toFixed(2)}mm`;
+    html += `<text x="${labelX.toFixed(2)}" y="${labelY.toFixed(2)}" font-size="${fontSize}" fill="#333" text-anchor="middle" dominant-baseline="middle" font-family="monospace">${arcLabel}</text>`;
+  });
+
   svg.setAttribute('viewBox', `0 0 ${(maxSx-minSx)*scale} ${(maxSy-minSy)*scale}`);
   svg.innerHTML = html;
 
@@ -674,13 +723,15 @@ function drawPreview() {
   applyViewTransform();
 }
 
-function rowHTML(r) {
-  return `<div class="r-arc">A${r.arc}</div>
-          <div class="r-vals">
-            <div class="r-val">${r.a1}</div>
-            <div class="r-val">${r.a2}</div>
-          </div>
-          <div class="r-step">${r.step}</div>`;
+function calcFontSize(a1, a2) {
+  // Scale font down based on the longest coordinate string
+  const maxLen = Math.max(a1.length, a2.length);
+  const vw = window.innerWidth;
+  // Base size on screen width, shrink for longer numbers
+  if (maxLen <= 5)       return Math.min(42, vw * 0.10);  // e.g. 12.34
+  else if (maxLen <= 7)  return Math.min(36, vw * 0.085); // e.g. 123.45
+  else if (maxLen <= 9)  return Math.min(28, vw * 0.07);  // e.g. -1234.56
+  else                   return Math.min(22, vw * 0.055); // very long
 }
 
 function render() {
@@ -688,9 +739,12 @@ function render() {
   const actv = rows[cur];
   const next = rows[cur + 1];
 
+  // Dynamic font size for active row based on coordinate length
+  const fs = calcFontSize(actv.a1, actv.a2);
+
   document.getElementById('main').innerHTML = `
     <div class="row-prev">${prev ? rowHTML(prev) : ''}</div>
-    <div class="row-active">${rowHTML(actv)}</div>
+    <div class="row-active">${rowHTML(actv, fs)}</div>
     <div class="row-next">${next ? rowHTML(next) : ''}</div>
     <div class="nav">
       <button class="nav-btn" onclick="go(${cur-1})" ${cur===0?'disabled':''}>▲ Prev</button>
@@ -701,6 +755,16 @@ function render() {
   const pct = rows.length > 1 ? (cur / (rows.length - 1)) * 100 : 100;
   document.getElementById('prog-bar').style.width = pct + '%';
   document.getElementById('badge').innerHTML = `<b>${cur+1}</b> / ${rows.length}`;
+}
+
+function rowHTML(r, activeFs) {
+  const fs = activeFs ? `font-size:${activeFs.toFixed(1)}px;` : '';
+  return `<div class="r-arc">A${r.arc}</div>
+          <div class="r-vals">
+            <div class="r-val" style="${fs}">${r.a1}</div>
+            <div class="r-val" style="${fs}">${r.a2}</div>
+          </div>
+          <div class="r-step">${r.step}</div>`;
 }
 
 function go(idx) {
