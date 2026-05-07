@@ -201,16 +201,16 @@
   /* SVG Preview */
   .preview {
     flex-shrink: 0;
-    background: #0a0c10;
+    background: #ffffff;
     border-bottom: 1px solid #252a35;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     height: 40vh;
     overflow: hidden;
-    touch-action: none; /* prevent browser handling touches in preview */
+    touch-action: none;
   }
-  .preview svg { flex: 1; width: 100%; min-height: 0; touch-action: none; }
+  .preview svg { flex: 1; width: 100%; min-height: 0; touch-action: none; background: #ffffff; }
 
   /* Rotation controls — below the SVG */
   .preview-controls {
@@ -218,17 +218,17 @@
     justify-content: center;
     gap: 8px;
     padding: 5px 0;
-    background: #0a0c10;
-    border-top: 1px solid #252a35;
+    background: #f0f0f0;
+    border-top: 1px solid #cccccc;
     flex-shrink: 0;
   }
   .prev-btn {
     width: 34px;
     height: 34px;
-    background: #151820;
-    border: 1px solid #252a35;
+    background: #ffffff;
+    border: 1px solid #cccccc;
     border-radius: 6px;
-    color: #4f8fff;
+    color: #1a56db;
     font-size: 16px;
     cursor: pointer;
     display: flex;
@@ -237,7 +237,7 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  .prev-btn:active { background: #2e3444; }
+  .prev-btn:active { background: #e0e8ff; }
 
   @media (orientation: landscape) {
     .preview { height: 45vh; }
@@ -550,11 +550,12 @@ function arcPathD(ad, minSx, minSy, scale) {
 
 function circleSVG(cx, cy, r, minSx, minSy, scale, active) {
   const [px, py] = toSVG(cx, cy, minSx, minSy, scale);
-  const pr = r * scale;
-  const fill   = active ? 'rgba(255,107,53,0.25)' : 'none';
-  const stroke = active ? '#ff6b35' : 'rgba(79,143,255,0.4)';
-  const sw     = active ? 1.5 : 0.8;
-  return `<circle cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="${pr.toFixed(2)}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+  const pr   = r * scale;
+  const sw   = Math.max(0.3, 1.0 / viewZoom);  // scale stroke with zoom
+  const fill   = active ? 'rgba(255,107,53,0.2)' : 'none';
+  const stroke = active ? '#ff6b35' : '#1a56db';
+  const strokeW = active ? sw * 2 : sw;
+  return `<circle cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="${pr.toFixed(2)}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
 }
 
 function drawPreview() {
@@ -607,11 +608,12 @@ function drawPreview() {
   const curStep = parseInt(rows[cur].step);
   const curArc  = parseInt(rows[cur].arc);
 
-  let html = '';
+  let html = '<rect x="-9999" y="-9999" width="99999" height="99999" fill="white"/>';
 
   // Draw arcs
+  const arcSW = Math.max(0.3, 1.2 / viewZoom);
   arcData.forEach(ad => {
-    html += `<path d="${arcPathD(ad, minSx, minSy, scale)}" fill="none" stroke="#4f8fff" stroke-width="1.5" stroke-linecap="round"/>`;
+    html += `<path d="${arcPathD(ad, minSx, minSy, scale)}" fill="none" stroke="#222222" stroke-width="${arcSW}" stroke-linecap="round"/>`;
   });
 
   // Draw circles using ACTUAL positions from arc data
@@ -641,10 +643,13 @@ function drawPreview() {
     }
   });
 
-  // Origin crosshair
+  // Origin crosshair — scales with zoom so it doesn't get huge
   const [ox, oy] = toSVG(0, 0, minSx, minSy, scale);
-  html += `<line x1="${ox-6}" y1="${oy}" x2="${ox+6}" y2="${oy}" stroke="#3de87a" stroke-width="1"/>`;
-  html += `<line x1="${ox}" y1="${oy-6}" x2="${ox}" y2="${oy+6}" stroke="#3de87a" stroke-width="1"/>`;
+  const armLen = Math.max(4, 12 / viewZoom);
+  const origSW = Math.max(0.3, 0.8 / viewZoom);
+  html += `<line x1="${ox-armLen}" y1="${oy}" x2="${ox+armLen}" y2="${oy}" stroke="#cc0000" stroke-width="${origSW}"/>`;
+  html += `<line x1="${ox}" y1="${oy-armLen}" x2="${ox}" y2="${oy+armLen}" stroke="#cc0000" stroke-width="${origSW}"/>`;
+  html += `<circle cx="${ox}" cy="${oy}" r="${Math.max(1.5, 3/viewZoom)}" fill="#cc0000" stroke="none"/>`;
 
   svg.setAttribute('viewBox', `0 0 ${(maxSx-minSx)*scale} ${(maxSy-minSy)*scale}`);
   svg.innerHTML = html;
