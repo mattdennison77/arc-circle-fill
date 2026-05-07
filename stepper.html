@@ -286,12 +286,13 @@
 </div>
 
 <div class="preview" id="preview" style="display:none">
-  <svg id="preview-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
+  <svg id="preview-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style="touch-action:none;"></svg>
   <div class="preview-controls">
     <button class="prev-btn" onclick="rotatePreview(-90)" title="Rotate CCW">↺</button>
     <button class="prev-btn" onclick="rotatePreview(90)"  title="Rotate CW">↻</button>
     <button class="prev-btn" onclick="flipPreview('h')"   title="Flip H">⇔</button>
     <button class="prev-btn" onclick="flipPreview('v')"   title="Flip V">⇕</button>
+    <button class="prev-btn" onclick="resetView()"        title="Reset view">⊡</button>
   </div>
 </div>
 
@@ -362,14 +363,82 @@ let previewFlipV    = 1;   // 1 or -1
 
 function rotatePreview(deg) {
   previewRotation = ((previewRotation + deg) % 360 + 360) % 360;
+  viewZoom = 1; viewPanX = 0; viewPanY = 0;
   drawPreview();
 }
 
 function flipPreview(axis) {
   if (axis === 'h') previewFlipH *= -1;
   if (axis === 'v') previewFlipV *= -1;
+  viewZoom = 1; viewPanX = 0; viewPanY = 0;
   drawPreview();
 }
+
+// ── Pan / Zoom ────────────────────────────────────────────────────────────────
+let viewZoom = 1, viewPanX = 0, viewPanY = 0, baseVB = null;
+
+function resetView() {
+  viewZoom = 1; viewPanX = 0; viewPanY = 0;
+  applyViewTransform();
+}
+
+function applyViewTransform() {
+  if (!baseVB) return;
+  const w  = baseVB.w / viewZoom;
+  const h  = baseVB.h / viewZoom;
+  const cx = baseVB.x + baseVB.w / 2 - viewPanX;
+  const cy = baseVB.y + baseVB.h / 2 - viewPanY;
+  document.getElementById('preview-svg')
+    .setAttribute('viewBox', `${cx - w/2} ${cy - h/2} ${w} ${h}`);
+}
+
+// Touch handlers for pinch-zoom and pan
+(function() {
+  let t0 = null, d0 = null;
+
+  function tdist(a, b) { return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY); }
+
+  window.addEventListener('load', () => {
+    const el = document.getElementById('preview');
+    if (!el) return;
+
+    el.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) { t0 = e.touches[0]; d0 = null; }
+      else if (e.touches.length === 2) { d0 = tdist(e.touches[0], e.touches[1]); t0 = null; }
+      e.stopPropagation();
+    }, { passive: true });
+
+    el.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (!baseVB) return;
+      const svgEl = document.getElementById('preview-svg');
+      const sw = svgEl.clientWidth || 300, sh = svgEl.clientHeight || 150;
+
+      if (e.touches.length === 1 && t0) {
+        // Pan
+        const dx = e.touches[0].clientX - t0.clientX;
+        const dy = e.touches[0].clientY - t0.clientY;
+        viewPanX += (dx / sw) * (baseVB.w / viewZoom);
+        viewPanY += (dy / sh) * (baseVB.h / viewZoom);
+        t0 = e.touches[0];
+        applyViewTransform();
+      } else if (e.touches.length === 2 && d0 !== null) {
+        // Pinch zoom
+        const d1 = tdist(e.touches[0], e.touches[1]);
+        viewZoom = Math.max(0.5, Math.min(20, viewZoom * (d1 / d0)));
+        d0 = d1;
+        applyViewTransform();
+      }
+    }, { passive: false });
+
+    el.addEventListener('touchend', e => {
+      if (e.touches.length < 2) d0 = null;
+      if (e.touches.length === 1) t0 = e.touches[0];
+      if (e.touches.length === 0) t0 = null;
+      e.stopPropagation();
+    }, { passive: true });
+  });
+})();
 
 // Apply rotation + flip to a screen-space point
 function applyTransform(sx, sy) {
@@ -576,6 +645,10 @@ function drawPreview() {
 
   svg.setAttribute('viewBox', `0 0 ${(maxSx-minSx)*scale} ${(maxSy-minSy)*scale}`);
   svg.innerHTML = html;
+
+  // Store base viewBox for pan/zoom
+  baseVB = { x: 0, y: 0, w: (maxSx-minSx)*scale, h: (maxSy-minSy)*scale };
+  applyViewTransform();
 }
 
 function rowHTML(r) {
