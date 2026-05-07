@@ -36,6 +36,7 @@
     height: 100vh;
   }
 
+  /* ── Header ── */
   header {
     padding: 14px 20px 10px;
     border-bottom: 1px solid var(--border);
@@ -60,8 +61,13 @@
     color: var(--faint);
     letter-spacing: 0.08em;
   }
-  #progress-badge span { color: var(--accent); font-size: 13px; }
 
+  #progress-badge span {
+    color: var(--accent);
+    font-size: 13px;
+  }
+
+  /* ── Axis labels row ── */
   #axis-row {
     display: flex;
     justify-content: space-around;
@@ -83,6 +89,7 @@
   .axis-label:first-child { text-align: left; }
   .axis-label:last-child  { text-align: right; }
 
+  /* ── Tape container ── */
   #tape-wrapper {
     flex: 1;
     display: flex;
@@ -91,7 +98,9 @@
     position: relative;
   }
 
-  #tape-wrapper::before, #tape-wrapper::after {
+  /* Gradient fade top & bottom */
+  #tape-wrapper::before,
+  #tape-wrapper::after {
     content: '';
     position: absolute;
     left: 0; right: 0;
@@ -108,6 +117,7 @@
     background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
   }
 
+  /* Arrow buttons */
   .arrow-btn {
     width: 52px;
     flex-shrink: 0;
@@ -134,6 +144,7 @@
   }
   .arrow-btn:active svg { stroke: var(--accent); transform: scale(0.9); }
 
+  /* Tape scroll area */
   #tape {
     flex: 1;
     overflow: hidden;
@@ -151,6 +162,7 @@
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Individual rows */
   .coord-row {
     display: flex;
     align-items: center;
@@ -179,7 +191,10 @@
     letter-spacing: 0.04em;
   }
 
-  .coord-row .coord-val { flex: 1; text-align: center; }
+  .coord-row .coord-val {
+    flex: 1;
+    text-align: center;
+  }
 
   .coord-row .step-num {
     font-family: var(--mono);
@@ -190,14 +205,27 @@
     flex-shrink: 0;
   }
 
-  .coord-row.is-prev { opacity: 0.25; color: var(--faint); }
+  /* State variants */
+  .coord-row.is-prev {
+    opacity: 0.25;
+    color: var(--faint);
+  }
   .coord-row.is-prev .arc-num,
   .coord-row.is-prev .step-num { color: var(--dim); }
-  .coord-row.is-next { opacity: 0.25; color: var(--faint); }
+
+  .coord-row.is-next {
+    opacity: 0.25;
+    color: var(--faint);
+  }
   .coord-row.is-next .arc-num,
   .coord-row.is-next .step-num { color: var(--dim); }
-  .coord-row.is-active { opacity: 1; color: var(--active); }
 
+  .coord-row.is-active {
+    opacity: 1;
+    color: var(--active);
+  }
+
+  /* Active highlight bar */
   #active-highlight {
     position: absolute;
     left: 8px; right: 8px;
@@ -211,21 +239,39 @@
     transform: translateY(-50%);
   }
 
-  .coord-row.is-active .coords { font-size: 28px; color: var(--active); }
+  /* Active row coords larger */
+  .coord-row.is-active .coords {
+    font-size: 28px;
+    color: var(--active);
+  }
   .coord-row.is-active .arc-num { color: var(--accent); }
   .coord-row.is-active .step-num { color: var(--accent); }
+
+  /* Left accent line on active */
   .coord-row.is-active::before {
     content: '';
     position: absolute;
-    left: 0; top: 12px; bottom: 12px;
+    left: 0;
+    top: 12px; bottom: 12px;
     width: 3px;
     background: var(--accent);
     border-radius: 2px;
   }
 
-  #progress-bar-wrap { height: 3px; background: var(--border); flex-shrink: 0; }
-  #progress-bar { height: 100%; background: var(--accent); transition: width 0.25s ease; border-radius: 2px; }
+  /* ── Progress bar ── */
+  #progress-bar-wrap {
+    height: 3px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  #progress-bar {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.25s ease;
+    border-radius: 2px;
+  }
 
+  /* ── Footer ── */
   footer {
     padding: 10px 20px 16px;
     border-top: 1px solid var(--border);
@@ -234,68 +280,65 @@
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 12px;
   }
 
-  .foot-btn {
+  #load-btn {
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-size: 12px;
+    letter-spacing: 0.1em;
     color: var(--accent);
     background: rgba(79,143,255,0.08);
     border: 1px solid rgba(79,143,255,0.25);
     border-radius: 6px;
-    padding: 7px 12px;
+    padding: 8px 16px;
     cursor: pointer;
     text-transform: uppercase;
-    transition: background 0.15s;
-    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .foot-btn:active { background: rgba(79,143,255,0.18); }
-  .foot-btn.secondary {
-    color: var(--faint);
-    background: transparent;
-    border-color: var(--border);
-  }
+  #load-btn:active { background: rgba(79,143,255,0.18); }
 
   #file-input { display: none; }
 
   #status-msg {
     font-family: var(--mono);
-    font-size: 10px;
+    font-size: 11px;
     color: var(--faint);
     flex: 1;
     text-align: right;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    min-width: 0;
   }
-  #status-msg.ok  { color: var(--success); }
-  #status-msg.err { color: var(--accent2); }
 
+  /* ── Empty state ── */
   #empty-state {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 16px;
     padding: 40px;
   }
 
-  #empty-state svg { width: 56px; height: 56px; stroke: var(--dim); fill: none; stroke-width: 1.5; }
+  #empty-state svg {
+    width: 56px; height: 56px;
+    stroke: var(--dim);
+    fill: none;
+    stroke-width: 1.5;
+  }
 
   #empty-state p {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 13px;
     color: var(--muted);
     text-align: center;
-    line-height: 2;
+    line-height: 1.8;
     letter-spacing: 0.05em;
   }
 
+  /* Swipe hint */
   #swipe-hint {
     font-family: var(--mono);
     font-size: 10px;
@@ -305,27 +348,9 @@
     letter-spacing: 0.08em;
     flex-shrink: 0;
   }
-
-  /* Loading spinner */
-  .spinner {
-    display: inline-block;
-    width: 12px; height: 12px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    vertical-align: middle;
-    margin-right: 6px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-
-<!-- GitHub raw CSV URL — auto-loaded on page open -->
-<script>
-  const GITHUB_CSV_URL = 'https://raw.githubusercontent.com/mattdennison77/arc-circle-fill/master/arc_circle_report.csv';
-</script>
 
 <header>
   <h1>⊙ Coord Stepper</h1>
@@ -339,19 +364,30 @@
   <div class="axis-label" id="lbl-step">#</div>
 </div>
 
+<!-- Empty state -->
 <div id="empty-state">
-  <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-  <p id="empty-msg">Fetching latest coordinates<br>from GitHub...</p>
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+  <p>Load a CSV file exported<br>from Arc Circle Fill<br>to get started</p>
 </div>
 
+<!-- Tape view (hidden until CSV loaded) -->
 <div id="tape-wrapper" style="display:none">
   <div id="active-highlight"></div>
+
   <button class="arrow-btn" id="btn-up" aria-label="Previous">
     <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
   </button>
+
   <div id="tape">
     <div id="tape-inner"></div>
   </div>
+
   <button class="arrow-btn" id="btn-down" aria-label="Next">
     <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
   </button>
@@ -361,53 +397,33 @@
   <div id="progress-bar" style="width:0%"></div>
 </div>
 
-<div id="swipe-hint" style="display:none">swipe up / down  ·  tap arrows  ·  keyboard ↑↓</div>
+<div id="swipe-hint" style="display:none">swipe up / down to step</div>
 
 <footer>
-  <button class="foot-btn" id="refresh-btn" onclick="fetchFromGitHub()">↻ Refresh</button>
-  <button class="foot-btn secondary" onclick="document.getElementById('file-input').click()">Load CSV</button>
+  <button id="load-btn" onclick="document.getElementById('file-input').click()">
+    Load CSV
+  </button>
   <input type="file" id="file-input" accept=".csv">
-  <div id="status-msg">Connecting...</div>
+  <div id="status-msg">No file loaded</div>
 </footer>
 
 <script>
-  let rows    = [];
+  let rows = [];
   let current = 0;
-  const ROW_H   = 56;
+  const ROW_H = 56;
+  const VISIBLE = 9; // odd number — centre is active
 
-  const tapeInner    = document.getElementById('tape-inner');
-  const progressBar  = document.getElementById('progress-bar');
-  const progressBadge= document.getElementById('progress-badge');
-  const statusMsg    = document.getElementById('status-msg');
-  const emptyState   = document.getElementById('empty-state');
-  const emptyMsg     = document.getElementById('empty-msg');
-  const tapeWrapper  = document.getElementById('tape-wrapper');
+  const tapeInner   = document.getElementById('tape-inner');
+  const progressBar = document.getElementById('progress-bar');
+  const progressBadge = document.getElementById('progress-badge');
+  const statusMsg   = document.getElementById('status-msg');
+  const emptyState  = document.getElementById('empty-state');
+  const tapeWrapper = document.getElementById('tape-wrapper');
   const progressWrap = document.getElementById('progress-bar-wrap');
-  const axisRow      = document.getElementById('axis-row');
-  const swipeHint    = document.getElementById('swipe-hint');
+  const axisRow     = document.getElementById('axis-row');
+  const swipeHint   = document.getElementById('swipe-hint');
 
-  // ── Auto-fetch from GitHub on load ───────────────────────────────────────
-  async function fetchFromGitHub() {
-    statusMsg.textContent = '';
-    statusMsg.className   = '';
-    statusMsg.innerHTML   = '<span class="spinner"></span>Fetching...';
-    emptyMsg.textContent  = 'Fetching latest coordinates\nfrom GitHub...';
-
-    try {
-      // Add cache-busting timestamp so phone doesn't serve stale CSV
-      const url  = GITHUB_CSV_URL + '?t=' + Date.now();
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const text = await resp.text();
-      parseCSV(text, 'arc_circle_report.csv (GitHub)');
-    } catch (err) {
-      statusMsg.textContent = 'GitHub fetch failed — load CSV manually';
-      statusMsg.className   = 'err';
-      emptyMsg.textContent  = 'Could not reach GitHub.\nLoad CSV manually below.';
-    }
-  }
-
-  // ── Manual file load ──────────────────────────────────────────────────────
+  // ── CSV parser ────────────────────────────────────────────────────────────
   document.getElementById('file-input').addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -416,14 +432,9 @@
     reader.readAsText(file);
   });
 
-  // ── CSV parser ────────────────────────────────────────────────────────────
   function parseCSV(text, filename) {
     const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.length < 2) {
-      statusMsg.textContent = 'CSV appears empty';
-      statusMsg.className   = 'err';
-      return;
-    }
+    if (lines.length < 2) { statusMsg.textContent = 'CSV appears empty'; return; }
 
     const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
     rows = [];
@@ -439,22 +450,16 @@
       });
     }
 
-    if (rows.length === 0) {
-      statusMsg.textContent = 'No data rows found';
-      statusMsg.className   = 'err';
-      return;
-    }
+    if (rows.length === 0) { statusMsg.textContent = 'No data rows found'; return; }
 
+    // Update axis labels from CSV headers
     document.getElementById('lbl-a1').textContent = headers[2] || 'A1';
     document.getElementById('lbl-a2').textContent = headers[3] || 'A2';
 
     current = 0;
     buildTape();
     showTape();
-
-    const shortName = filename.length > 30 ? '...' + filename.slice(-27) : filename;
-    statusMsg.textContent = '✓ ' + shortName;
-    statusMsg.className   = 'ok';
+    statusMsg.textContent = filename;
   }
 
   // ── Build tape DOM ────────────────────────────────────────────────────────
@@ -478,32 +483,40 @@
   }
 
   function updateTape() {
+    const half = Math.floor(VISIBLE / 2);
     const allRows = tapeInner.querySelectorAll('.coord-row');
+
     allRows.forEach((row, i) => {
       row.classList.remove('is-active', 'is-prev', 'is-next');
       const diff = i - current;
-      if (diff === 0)    row.classList.add('is-active');
-      else if (diff < 0) row.classList.add('is-prev');
-      else               row.classList.add('is-next');
+      if (diff === 0)       row.classList.add('is-active');
+      else if (diff < 0)    row.classList.add('is-prev');
+      else                  row.classList.add('is-next');
+
+      // Fade further rows more aggressively
       const dist = Math.abs(diff);
-      row.style.opacity = dist === 0 ? '1' : dist === 1 ? '0.35' : dist === 2 ? '0.18' : '0.07';
+      row.style.opacity = dist === 0 ? '1' :
+                          dist === 1 ? '0.35' :
+                          dist === 2 ? '0.18' : '0.07';
     });
 
-    const tapeH  = document.getElementById('tape').clientHeight;
+    // Scroll tape so active row is centred
+    const tapeH = document.getElementById('tape').clientHeight;
     const offset = (tapeH / 2) - (current * ROW_H) - (ROW_H / 2);
     tapeInner.style.transform = `translateY(${offset}px)`;
 
+    // Progress
     const pct = rows.length > 1 ? (current / (rows.length - 1)) * 100 : 100;
     progressBar.style.width = pct + '%';
     progressBadge.innerHTML = `<span>${current + 1}</span> / ${rows.length}`;
   }
 
   function showTape() {
-    emptyState.style.display   = 'none';
-    tapeWrapper.style.display  = 'flex';
-    progressWrap.style.display = 'block';
-    axisRow.style.display      = 'flex';
-    swipeHint.style.display    = 'block';
+    emptyState.style.display    = 'none';
+    tapeWrapper.style.display   = 'flex';
+    progressWrap.style.display  = 'block';
+    axisRow.style.display       = 'flex';
+    swipeHint.style.display     = 'block';
   }
 
   // ── Navigation ────────────────────────────────────────────────────────────
@@ -516,11 +529,13 @@
   document.getElementById('btn-up').addEventListener('click',   () => goTo(current - 1));
   document.getElementById('btn-down').addEventListener('click', () => goTo(current + 1));
 
+  // Keyboard support
   document.addEventListener('keydown', e => {
     if (e.key === 'ArrowUp')   goTo(current - 1);
     if (e.key === 'ArrowDown') goTo(current + 1);
   });
 
+  // Touch swipe support
   let touchStartY = 0;
   document.getElementById('tape').addEventListener('touchstart', e => {
     touchStartY = e.touches[0].clientY;
@@ -530,9 +545,6 @@
     const dy = touchStartY - e.changedTouches[0].clientY;
     if (Math.abs(dy) > 30) goTo(current + (dy > 0 ? 1 : -1));
   }, { passive: true });
-
-  // ── Auto-fetch on page load ───────────────────────────────────────────────
-  fetchFromGitHub();
 </script>
 </body>
 </html>
