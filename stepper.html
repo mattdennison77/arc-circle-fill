@@ -564,41 +564,56 @@ function drawPreview() {
   const W = svg.clientWidth  || 300;
   const H = svg.clientHeight || 150;
 
-  // Circle radius in mm from arc data
-  const cr = arcData[0].cr;
+  // Collect bounding box from ONLY the arc path and circle positions
+  // Do NOT include origin (0,0) or mirrored points — they shrink the view
+  const allX = [], allY = [];
 
-  // Collect all points for bounding box
-  // Use arc geometry + actual circle positions from CSV rows
-  const allX = [0], allY = [0];
-
-  // Add arc boundary points
   arcData.forEach(ad => {
-    for (let i = 0; i <= 36; i++) {
-      const a = ad.startA + ad.sweep * i / 36;
-      allX.push(ad.cx + (ad.r + ad.cr) * Math.cos(a));
-      allY.push(ad.cy + (ad.r + ad.cr) * Math.sin(a));
-      allX.push(ad.cx - (ad.r + ad.cr) * Math.cos(a));
-      allY.push(ad.cy - (ad.r + ad.cr) * Math.sin(a));
+    // Arc path points
+    for (let i = 0; i <= 48; i++) {
+      const a = ad.startA + ad.sweep * i / 48;
+      allX.push(ad.cx + ad.r * Math.cos(a));
+      allY.push(ad.cy + ad.r * Math.sin(a));
+    }
+    // Circle centre + radius extents
+    if (ad.circles && ad.circles.length) {
+      ad.circles.forEach(([cx, cy]) => {
+        allX.push(cx + ad.cr, cx - ad.cr);
+        allY.push(cy + ad.cr, cy - ad.cr);
+      });
+    } else {
+      // fallback: inner arc boundary
+      const innerR = ad.r - ad.cr;
+      for (let i = 0; i <= 12; i++) {
+        const a = ad.startA + ad.sweep * i / 12;
+        allX.push(ad.cx + (innerR + ad.cr * 2) * Math.cos(a));
+        allY.push(ad.cy + (innerR + ad.cr * 2) * Math.sin(a));
+      }
     }
   });
 
-  // Project to screen space with rotation/flip applied
-  const allSx = allX.map((x, i) => {
-    const sx = x * viewRight[0] + allY[i] * viewRight[1];
-    const sy = x * viewUp[0]    + allY[i] * viewUp[1];
+  if (!allX.length) return;
+
+  // Project to screen space with rotation/flip
+  function projectX(x, y) {
+    const sx = x * viewRight[0] + y * viewRight[1];
+    const sy = x * viewUp[0]    + y * viewUp[1];
     return applyTransform(sx, sy)[0];
-  });
-  const allSy = allX.map((x, i) => {
-    const sx = x * viewRight[0] + allY[i] * viewRight[1];
-    const sy = x * viewUp[0]    + allY[i] * viewUp[1];
+  }
+  function projectY(x, y) {
+    const sx = x * viewRight[0] + y * viewRight[1];
+    const sy = x * viewUp[0]    + y * viewUp[1];
     return applyTransform(sx, sy)[1];
-  });
+  }
+
+  const allSx = allX.map((x, i) => projectX(x, allY[i]));
+  const allSy = allX.map((x, i) => projectY(x, allY[i]));
 
   let minSx = Math.min(...allSx), maxSx = Math.max(...allSx);
   let minSy = Math.min(...allSy), maxSy = Math.max(...allSy);
 
-  // Padding
-  const pad = 0.08;
+  // Small padding (3%)
+  const pad = 0.03;
   const rsx = maxSx - minSx || 1, rsy = maxSy - minSy || 1;
   minSx -= rsx * pad; maxSx += rsx * pad;
   minSy -= rsy * pad; maxSy += rsy * pad;
