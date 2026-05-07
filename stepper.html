@@ -179,6 +179,42 @@
   }
   .empty p { font-size: 14px; color: #4a5270; line-height: 1.8; }
 
+  /* SVG Preview */
+  .preview {
+    flex-shrink: 0;
+    background: #0a0c10;
+    border-bottom: 1px solid #252a35;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 33vh;
+    overflow: hidden;
+  }
+  .preview svg { width: 100%; height: 100%; }
+
+  @media (orientation: landscape) {
+    .preview { height: 40vh; }
+  }
+
+  /* File info bar */
+  .fileinfo {
+    background: #0d1520;
+    border-bottom: 1px solid #252a35;
+    padding: 5px 16px;
+    display: flex;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .fileinfo span {
+    font-size: 10px;
+    color: #4a5270;
+    letter-spacing: 0.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fileinfo span b { color: #6b7599; font-weight: normal; }
+
   /* Landscape — tighter vertical spacing */
   @media (orientation: landscape) {
     .hdr        { padding: 6px 16px; }
@@ -201,6 +237,15 @@
 <div class="hdr">
   <div class="hdr-title">⊙ COORD STEPPER</div>
   <div class="hdr-badge" id="badge">— / —</div>
+</div>
+
+<div class="preview" id="preview" style="display:none">
+  <svg id="preview-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
+</div>
+
+<div class="fileinfo" id="fileinfo" style="display:none">
+  <span id="fi-file">—</span>
+  <span id="fi-sketch">—</span>
 </div>
 
 <div class="axes" id="axes" style="display:none">
@@ -253,15 +298,51 @@ document.getElementById('file-input').addEventListener('change', e => {
   r.readAsText(f);
 });
 
+let arcData   = [];
+let viewRight = [1, 0];
+let viewUp    = [0, 1];
+let signs     = [1, 1];
+
 function parse(text) {
   const lines = text.trim().split('\n').map(l => l.trim()).filter(Boolean);
   if (lines.length < 2) { setStatus('err', 'CSV empty'); return; }
-  const h = lines[0].split(',').map(v => v.replace(/^"|"$/g,'').trim());
+
+  let dataStart = 0;
+  arcData = [];
+
+  // Read comment rows
+  for (let i = 0; i < lines.length; i++) {
+    const c = lines[i].split(',').map(v => v.replace(/^"|"$/g,'').trim());
+    if (c[0] === '# File') {
+      document.getElementById('fi-file').innerHTML   = `File: <b>${c[1] || '—'}</b>`;
+      document.getElementById('fi-sketch').innerHTML = `Sketch: <b>${c[3] || '—'}</b>`;
+      document.getElementById('fileinfo').style.display = 'flex';
+      dataStart = i + 1;
+    } else if (c[0] === '# Arcs') {
+      for (let j = 1; j < c.length; j++) {
+        const p = c[j].split(',').map(Number);
+        if (p.length >= 6) {
+          arcData.push({ cx: p[0], cy: p[1], r: p[2], startA: p[3], sweep: p[4], cr: p[5] });
+        }
+      }
+      dataStart = i + 1;
+    } else if (c[0] === '# View') {
+      viewRight = [parseFloat(c[1]), parseFloat(c[2])];
+      viewUp    = [parseFloat(c[3]), parseFloat(c[4])];
+      signs     = [parseFloat(c[5]), parseFloat(c[6])];
+      dataStart = i + 1;
+    } else {
+      break;
+    }
+  }
+
+  const h = lines[dataStart].split(',').map(v => v.replace(/^"|"$/g,'').trim());
   l1 = h[2] || 'A1'; l2 = h[3] || 'A2';
   document.getElementById('lbl1').textContent = l1;
   document.getElementById('lbl2').textContent = l2;
+
   rows = [];
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = dataStart + 1; i < lines.length; i++) {
     const c = lines[i].split(',').map(v => v.replace(/^"|"$/g,'').trim());
     if (c.length < 4) continue;
     rows.push({ arc: c[0], step: c[1], a1: parseFloat(c[2]).toFixed(2), a2: parseFloat(c[3]).toFixed(2) });
@@ -270,8 +351,113 @@ function parse(text) {
   cur = 0;
   document.getElementById('axes').style.display = 'flex';
   document.getElementById('prog-wrap').style.display = 'block';
+  if (arcData.length > 0) document.getElementById('preview').style.display = 'flex';
   setStatus('ok', '✓ ' + rows.length + ' coordinates');
   render();
+  drawPreview();
+}
+
+// ── SVG Preview ─────────────────────────────────────────────────────────────
+function toSVG(xMm, yMm, minSx, minSy, scale) {
+  const sx = xMm * viewRight[0] + yMm * viewRight[1];
+  const sy = xMm * viewUp[0]    + yMm * viewUp[1];
+  return [(sx - minSx) * scale, (sy - minSy) * scale];
+}
+
+function arcPathD(ad, minSx, minSy, scale) {
+  const steps = 48;
+  const pts = [];
+  for (let i = 0; i <= steps; i++) {
+    const a = ad.startA + (ad.sweep * i / steps);
+    const x = ad.cx + ad.r * Math.cos(a);
+    const y = ad.cy + ad.r * Math.sin(a);
+    const [px, py] = toSVG(x, y, minSx, minSy, scale);
+    pts.push(`${i === 0 ? 'M' : 'L'}${px.toFixed(2)},${py.toFixed(2)}`);
+  }
+  return pts.join(' ');
+}
+
+function circleSVG(cx, cy, r, minSx, minSy, scale, active) {
+  const [px, py] = toSVG(cx, cy, minSx, minSy, scale);
+  const pr = r * scale;
+  const fill   = active ? 'rgba(255,107,53,0.25)' : 'none';
+  const stroke = active ? '#ff6b35' : 'rgba(79,143,255,0.4)';
+  const sw     = active ? 1.5 : 0.8;
+  return `<circle cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="${pr.toFixed(2)}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+}
+
+function drawPreview() {
+  if (!arcData.length) return;
+  const svg = document.getElementById('preview-svg');
+  const W = svg.clientWidth  || 300;
+  const H = svg.clientHeight || 150;
+
+  // Collect all points to compute bounds
+  const allX = [0], allY = [0];
+  arcData.forEach(ad => {
+    for (let i = 0; i <= 36; i++) {
+      const a = ad.startA + ad.sweep * i / 36;
+      allX.push(ad.cx + (ad.r + ad.cr) * Math.cos(a));
+      allY.push(ad.cy + (ad.r + ad.cr) * Math.sin(a));
+    }
+  });
+
+  // Project to screen space
+  const allSx = allX.map((x, i) => x * viewRight[0] + allY[i] * viewRight[1]);
+  const allSy = allX.map((x, i) => x * viewUp[0]    + allY[i] * viewUp[1]);
+
+  let minSx = Math.min(...allSx), maxSx = Math.max(...allSx);
+  let minSy = Math.min(...allSy), maxSy = Math.max(...allSy);
+
+  // Padding
+  const pad = 0.08;
+  const rsx = maxSx - minSx || 1, rsy = maxSy - minSy || 1;
+  minSx -= rsx * pad; maxSx += rsx * pad;
+  minSy -= rsy * pad; maxSy += rsy * pad;
+
+  const scale = Math.min(W / (maxSx - minSx), H / (maxSy - minSy));
+
+  // Get current circle index and its arc
+  const curRow  = rows[cur];
+  const curArc  = curRow ? parseInt(curRow.arc) - 1 : -1;
+  const curStep = curRow ? parseInt(curRow.step) - 1 : -1;
+
+  let html = '';
+
+  // Draw arcs
+  arcData.forEach((ad, ai) => {
+    html += `<path d="${arcPathD(ad, minSx, minSy, scale)}" fill="none" stroke="#4f8fff" stroke-width="1.5" stroke-linecap="round"/>`;
+  });
+
+  // Draw all circles (active one highlighted)
+  let circleIdx = 0;
+  arcData.forEach((ad, ai) => {
+    // Reconstruct circle positions along arc
+    const innerR = ad.r - ad.cr;
+    if (innerR <= 0) return;
+    const minGaps = Math.ceil((Math.abs(ad.sweep) * innerR) / (ad.cr * 2));
+    const nGaps   = Math.max(minGaps, 1);
+    const nCirc   = nGaps + 1;
+    const step    = ad.sweep / nGaps;
+
+    for (let j = 0; j < nCirc; j++) {
+      const a  = ad.startA + j * step;
+      const cx = ad.cx + innerR * Math.cos(a);
+      const cy = ad.cy + innerR * Math.sin(a);
+      const isActive = (ai === curArc && circleIdx === curStep);
+      html += circleSVG(cx, cy, ad.cr, minSx, minSy, scale, isActive);
+      circleIdx++;
+    }
+    circleIdx = 0; // reset per arc — curStep is per arc
+  });
+
+  // Origin marker
+  const [ox, oy] = toSVG(0, 0, minSx, minSy, scale);
+  html += `<line x1="${ox-6}" y1="${oy}" x2="${ox+6}" y2="${oy}" stroke="#3de87a" stroke-width="1"/>`;
+  html += `<line x1="${ox}" y1="${oy-6}" x2="${ox}" y2="${oy+6}" stroke="#3de87a" stroke-width="1"/>`;
+
+  svg.setAttribute('viewBox', `0 0 ${(maxSx-minSx)*scale} ${(maxSy-minSy)*scale}`);
+  svg.innerHTML = html;
 }
 
 function rowHTML(r) {
@@ -307,6 +493,7 @@ function go(idx) {
   if (!rows.length) return;
   cur = Math.max(0, Math.min(rows.length - 1, idx));
   render();
+  drawPreview();
 }
 
 function showMsg(msg) {
