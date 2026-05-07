@@ -100,7 +100,11 @@
   /* Active overrides */
   .row-active .r-arc  { color: #4f8fff; font-size: 13px; }
   .row-active .r-step { color: #4f8fff; font-size: 13px; }
-  .row-active .r-val  { font-size: 32px; color: #ffffff; font-weight: bold; }
+  .row-active .r-val  { font-size: clamp(18px, 8vw, 42px); color: #ffffff; font-weight: bold; }
+
+  /* Previous/next font scales too */
+  .row-prev .r-val,
+  .row-next .r-val { font-size: clamp(13px, 4vw, 22px); }
 
   /* Nav buttons */
   .nav {
@@ -174,6 +178,14 @@
     text-align: center;
   }
   .empty p { font-size: 14px; color: #4a5270; line-height: 1.8; }
+
+  /* Landscape — tighter vertical spacing */
+  @media (orientation: landscape) {
+    .hdr        { padding: 6px 16px; }
+    .axes       { padding: 3px 16px; }
+    .row-active { padding: 10px 16px 10px 20px; margin: 4px 8px; }
+    .nav-btn    { padding: 10px; }
+  }
 
   .spin {
     display: inline-block; width: 12px; height: 12px;
