@@ -325,7 +325,7 @@
 </footer>
 
 <script>
-const URL = 'https://cdn.jsdelivr.net/gh/mattdennison77/arc-circle-fill@master/arc_circle_report.csv';
+const URL = 'https://raw.githubusercontent.com/mattdennison77/arc-circle-fill/master/arc_circle_report.csv';
 
 let rows = [], cur = 0, l1 = 'A1', l2 = 'A2';
 
@@ -333,7 +333,10 @@ async function fetchData() {
   setStatus('', '<span class="spin"></span>Fetching...');
   showMsg('Fetching coordinates<br>from GitHub...');
   try {
-    const r = await fetch(URL + '?t=' + Date.now());
+    const r = await fetch(URL + '?t=' + Date.now(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+    });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     parse(await r.text());
   } catch(e) {
