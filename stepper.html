@@ -237,8 +237,22 @@
     height: 40vh;
     overflow: hidden;
     touch-action: none;
+    position: relative;
   }
   .preview svg { flex: 1; width: 100%; min-height: 0; touch-action: none; background: #ffffff; }
+
+  /* Version label — fixed top-left of preview, unaffected by zoom */
+  .preview-ver {
+    position: absolute;
+    top: 5px;
+    left: 7px;
+    font-size: 9px;
+    font-family: monospace;
+    color: #aaaaaa;
+    pointer-events: none;
+    z-index: 4;
+    letter-spacing: 0.5px;
+  }
 
   /* Rotation controls — below the SVG */
   .preview-controls {
@@ -316,6 +330,7 @@
 
 <div class="preview" id="preview" style="display:none">
   <svg id="preview-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style="touch-action:none;"></svg>
+  <div class="preview-ver" id="preview-ver">v1.0</div>
   <div class="preview-controls">
     <button class="prev-btn" onclick="rotatePreview(-90)" title="Rotate CCW">↺</button>
     <button class="prev-btn" onclick="rotatePreview(90)"  title="Rotate CW">↻</button>
@@ -356,6 +371,13 @@
 
 <script>
 const API_URL = 'https://api.github.com/repos/mattdennison77/arc-circle-fill/contents/arc_circle_report.csv';
+const STEPPER_VERSION = '1.0.0';
+
+// Set version label
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('preview-ver');
+  if (el) el.textContent = 'v' + STEPPER_VERSION;
+});
 
 let rows = [], cur = 0, l1 = 'A1', l2 = 'A2';
 
