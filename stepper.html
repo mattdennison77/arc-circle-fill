@@ -659,6 +659,33 @@ function drawPreview() {
   const curStep = parseInt(rows[cur].step);
   const curArc  = parseInt(rows[cur].arc);
 
+  // Get current row's sketch-local coords from the stored arc circles
+  // We find the active circle by matching closest position to current step's
+  // world coordinates — robust against reordering
+  // Build a flat list of all circle sketch-local positions with their step numbers
+  const allCirclePositions = [];
+  arcData.forEach((ad, ai) => {
+    const arcRows = rows.filter(r => parseInt(r.arc) === ai + 1);
+    const nCirc   = arcRows.length;
+    const useExact = ad.circles && ad.circles.length === nCirc;
+    for (let j = 0; j < nCirc; j++) {
+      let cx, cy;
+      if (useExact) {
+        cx = ad.circles[j][0]; cy = ad.circles[j][1];
+      } else {
+        const innerR    = ad.r - ad.cr;
+        const angleStep = nCirc > 1 ? ad.sweep / (nCirc - 1) : 0;
+        const angle     = ad.startA + j * angleStep;
+        cx = ad.cx + innerR * Math.cos(angle);
+        cy = ad.cy + innerR * Math.sin(angle);
+      }
+      allCirclePositions.push({ cx, cy, step: parseInt(arcRows[j].step) });
+    }
+  });
+
+  // Find which position matches the current step
+  const activePos = allCirclePositions.find(p => p.step === curStep);
+
   let html = '<rect x="-9999" y="-9999" width="99999" height="99999" fill="white"/>';
 
   // Draw arcs
@@ -667,29 +694,29 @@ function drawPreview() {
     html += `<path d="${arcPathD(ad, minSx, minSy, scale)}" fill="none" stroke="#111111" stroke-width="${arcSW}" stroke-linecap="round"/>`;
   });
 
-  // Draw circles using ACTUAL positions from arc data
+  // Draw circles — highlight the one matching current step by position
   arcData.forEach((ad, ai) => {
     const arcRows  = rows.filter(r => parseInt(r.arc) === ai + 1);
     const nCirc    = arcRows.length;
     if (nCirc === 0) return;
 
-    // Use stored exact positions if available, otherwise fall back to angle spacing
     const useExact = ad.circles && ad.circles.length === nCirc;
 
     for (let j = 0; j < nCirc; j++) {
       let cx, cy;
       if (useExact) {
-        cx = ad.circles[j][0];
-        cy = ad.circles[j][1];
+        cx = ad.circles[j][0]; cy = ad.circles[j][1];
       } else {
-        const innerR  = ad.r - ad.cr;
+        const innerR    = ad.r - ad.cr;
         const angleStep = nCirc > 1 ? ad.sweep / (nCirc - 1) : 0;
-        const angle   = ad.startA + j * angleStep;
+        const angle     = ad.startA + j * angleStep;
         cx = ad.cx + innerR * Math.cos(angle);
         cy = ad.cy + innerR * Math.sin(angle);
       }
-      const stepNum  = parseInt(arcRows[j].step);
-      const isActive = (stepNum === curStep && ai + 1 === curArc);
+      // Active if this position matches the current step's position
+      const isActive = activePos &&
+        Math.abs(cx - activePos.cx) < 0.01 &&
+        Math.abs(cy - activePos.cy) < 0.01;
       html += circleSVG(cx, cy, ad.cr, minSx, minSy, scale, isActive);
     }
   });
