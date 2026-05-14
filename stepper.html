@@ -894,7 +894,7 @@
 
 <script>
 const API_URL = 'https://api.github.com/repos/mattdennison77/arc-circle-fill/contents/arc_circle_report.csv';
-const STEPPER_VERSION = '1.4.0';
+const STEPPER_VERSION = '1.4.2';
 
 // Set all version labels from constant
 window.addEventListener('DOMContentLoaded', () => {
@@ -2208,72 +2208,41 @@ function arcCalc() {
     arcL = Math.sqrt(inner2);
   }
 
-  // Arc centre (outer arc)
+  // Arc centre at (arcL, r2+R) in (Z, r) space
   const arcCenZ = arcL;
   const arcCenR = r2 + R;
 
-  // Circle centres are offset INWARD from the outer arc surface by insR
-  // For a circular arc, the offset curve is a concentric arc with radius R-insR
-  // BUT the endpoints need to be correct:
-  // First circle: at Z=0, offset inward from surface point (0, arcStartR)
-  //   Surface normal at Z=0 is horizontal (pointing left) → offset goes right along Z
-  //   Actually at Z=0 the arc is tangent to the shoulder (vertical), so normal is horizontal
-  //   Insert centre at (insR, arcStartR) — Z offset by insR, same r
-  // Last circle: at Z=arcL, surface tangent is vertical (tangent to D2)
-  //   Normal at Z=arcL points upward (away from centreline)
-  //   Insert centre at (arcL, r2+insR) — same Z, r offset up by insR
-
-  // For intermediate positions, walk along outer arc and offset inward by insR
-  // Outer arc: centre (arcCenZ, arcCenR), radius R
-  // At angle a from centre: point = (arcCenZ + R*cos(a), arcCenR + R*sin(a))
-  // Normal (inward) at this point points from surface toward centre
-  // Inward normal direction: (arcCenZ - point.z, arcCenR - point.r) normalized = (-cos(a), -sin(a))
-  // Offset point (circle centre): surface_point + insR * inward_normal
-  //   = (arcCenZ + R*cos(a) - insR*cos(a), arcCenR + R*sin(a) - insR*sin(a))
-  //   = (arcCenZ + (R-insR)*cos(a), arcCenR + (R-insR)*sin(a))
-  // This IS a concentric arc with radius (R-insR)! ✓
-
-  // So inner arc centre = same as outer arc centre = (arcL, r2+R)
-  // Inner arc radius = R - insR
+  // Inner arc radius — exactly as Fusion addin: inner_r = arc_r - circle_radius
   const innerArcR = R - insR;
   if (innerArcR <= 0) { res.textContent = '⚠ Insert too large for arc radius'; arcDraw(null); return; }
 
-  // Start angle: angle from arc centre to first circle centre (0, r1-insR)
-  // First circle at (insR, r1-insR) — offset from surface corner
-  // But simpler: first circle centre Z=insR (tangent to Z=0 face), r = r1-insR (tangent to D1 surface)
-  // This point must lie on inner arc:
-  // distance from (arcL, r2+R) to (insR, r1-insR) should = R-insR
-  // Let's just use the angle directly:
-  const startZ = insR;
-  const endZ   = arcL;
-  const endR   = r2 + insR;
+  // Start angle: from arc centre to arc start point (0, r1)
+  // End angle:   from arc centre to arc end point (arcL, r2) = -π/2
+  const startA  = Math.atan2(r1 - arcCenR, 0 - arcCenZ);
+  const endA    = Math.atan2(r2 - arcCenR, arcL - arcCenZ); // = -π/2
 
-  // Find where inner arc crosses Z=insR (first circle tangent to Z=0 face)
-  // Take the LOWER intersection (sin < 0) — circle sits inside the concave arc
-  const cosStart = (startZ - arcCenZ) / innerArcR;
-  if (Math.abs(cosStart) > 1) { res.textContent = '⚠ Insert too large — cannot fit first circle'; arcDraw(null); return; }
-  const startAngle = -Math.acos(cosStart); // negative = lower half, sin < 0
-  const startR     = arcCenR + innerArcR * Math.sin(startAngle);
+  // Sweep from startA to endA — take the shorter arc
+  let sweep = endA - startA;
+  // Normalise to (-π, π]
+  while (sweep >  Math.PI) sweep -= 2 * Math.PI;
+  while (sweep < -Math.PI) sweep += 2 * Math.PI;
 
-  const endAngle = Math.atan2(endR - arcCenR, endZ - arcCenZ);
+  // Number of gaps — exactly as Fusion addin: ceil(|sweep| * inner_r / spacing)
+  const minGaps   = Math.ceil(Math.abs(sweep) * innerArcR / spacing);
+  const nGaps     = Math.max(minGaps, 1);
+  const nCircles  = nGaps + 1;
+  const angleStep = sweep / nGaps;
 
-  // Sweep clockwise (decreasing angle)
-  let sweep = endAngle - startAngle;
-  if (sweep > 0) sweep -= 2 * Math.PI; // ensure clockwise
-
-  const arcLength  = Math.abs(sweep) * innerArcR;
-  const nGaps      = Math.max(1, Math.round(arcLength / spacing));
-  const actualStep = sweep / nGaps;
-  const nCircles   = nGaps + 1;
-
+  // Place circles at equal angle steps — exactly as Fusion addin
   const circles = [];
   for (let i = 0; i < nCircles; i++) {
-    const a   = startAngle + i * actualStep;
-    const cz  = arcCenZ + innerArcR * Math.cos(a);
-    const cr  = arcCenR + innerArcR * Math.sin(a);
+    const a  = startA + i * angleStep;
+    const cz = arcCenZ + innerArcR * Math.cos(a);
+    const cr = arcCenR + innerArcR * Math.sin(a);
     circles.push({ z: cz, r: cr, xDia: cr * 2, step: i + 1 });
   }
-  console.log('first:', circles[0], 'last:', circles[circles.length-1]);
+  console.log('first:', {z: circles[0].z.toFixed(3), xDia: circles[0].xDia.toFixed(3)},
+              'last:',  {z: circles[circles.length-1].z.toFixed(3), xDia: circles[circles.length-1].xDia.toFixed(3)});
 
   // Display result
   res.innerHTML = `${nCircles} circles &nbsp;|&nbsp; Arc L=${arcL.toFixed(3)}mm &nbsp;|&nbsp; Spacing=${spacing.toFixed(3)}mm`;
