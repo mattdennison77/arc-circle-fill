@@ -211,7 +211,6 @@
   }
   .btn:active { background: rgba(255,106,0,0.35); }
   .btn.sec { color: #777777; background: transparent; border-color: #2a2a2a; }
-  #file-input { display: none; }
   #status {
     flex: 1; text-align: right; font-size: 11px; color: #777777;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -607,6 +606,7 @@
   <button class="menu-item" onclick="openTool('trig')">△ Trig Calculator</button>
   <button class="menu-item" onclick="openTool('fillet')">╰ Fillet Calculator</button>
   <button class="menu-item" onclick="openTool('tap')">⏱ Tap RPM Timer</button>
+  <button class="menu-item" onclick="openTool('arc')">⊙ Arc Circle Calc</button>
   <div class="menu-divider"></div>
   <button class="menu-item" onclick="toggleMenu()">✕ Close</button>
 </div>
@@ -776,6 +776,71 @@
   </div>
 </div>
 
+<!-- Arc Circle Calculator Modal -->
+<div class="modal" id="modal-arc" style="display:none">
+  <div class="modal-hdr">
+    <div class="modal-title">⊙ Arc Circle Calc</div>
+    <button class="modal-close" onclick="closeTool('arc')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="calc-sub">Origin at large diameter edge — lathe style</div>
+
+    <!-- Preview -->
+    <div class="trig-preview" style="height:200px;touch-action:none;" id="arc-preview-wrap">
+      <svg id="arc-svg" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet" style="touch-action:none;"></svg>
+    </div>
+
+    <!-- Inputs -->
+    <div class="calc-row">
+      <div class="calc-label">Arc Radius R</div>
+      <input class="calc-input" id="ac-r" type="number" inputmode="decimal" placeholder="e.g. 50" oninput="arcCalc()">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">Start Dia D1 <span style="font-size:9px;color:#555">(large)</span></div>
+      <input class="calc-input" id="ac-d1" type="number" inputmode="decimal" placeholder="e.g. 50" oninput="arcCalc()">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">End Dia D2 <span style="font-size:9px;color:#555">(small)</span></div>
+      <input class="calc-input" id="ac-d2" type="number" inputmode="decimal" placeholder="e.g. 30" oninput="arcCalc()">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">Insert Dia</div>
+      <input class="calc-input" id="ac-ins" type="number" inputmode="decimal" placeholder="e.g. 10" oninput="arcCalc()">
+      <div class="calc-unit">mm</div>
+    </div>
+
+    <!-- Spacing toggle -->
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn active" id="ac-cusp-btn" onclick="arcSetMode('cusp')" style="flex:1">Cusp Height</button>
+      <button class="btn sec" id="ac-space-btn" onclick="arcSetMode('space')" style="flex:1">Manual Spacing</button>
+    </div>
+    <div class="calc-row" id="ac-cusp-row">
+      <div class="calc-label">Cusp Height</div>
+      <input class="calc-input" id="ac-cusp" type="number" inputmode="decimal" placeholder="e.g. 0.5" oninput="arcCalc()">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-row" id="ac-space-row" style="display:none">
+      <div class="calc-label">Spacing</div>
+      <input class="calc-input" id="ac-space" type="number" inputmode="decimal" placeholder="e.g. 8" oninput="arcCalc()">
+      <div class="calc-unit">mm</div>
+    </div>
+
+    <!-- Result -->
+    <div class="calc-result" id="arc-result">Enter values to calculate</div>
+
+    <!-- Coordinate table -->
+    <div id="arc-coords" style="display:none">
+      <div style="font-family:monospace;font-size:11px;color:#ff6a00;letter-spacing:1px;margin-bottom:6px;">COORDINATES (X dia, Z)</div>
+      <div id="arc-coord-table" style="font-family:monospace;font-size:12px;color:#dddddd;line-height:1.8;max-height:180px;overflow-y:auto;background:#111;border:1px solid #2a2a2a;border-radius:6px;padding:8px;"></div>
+    </div>
+
+    <button class="btn" onclick="arcClear()">Clear</button>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="modal-backdrop" style="display:none" onclick="closeAllTools()"></div>
 
 <div class="preview" id="preview" style="display:none">
@@ -812,7 +877,7 @@
 
 <div class="main" id="main">
   <div class="empty">
-    <p id="msg">Fetching coordinates<br>from GitHub...</p>
+    <p id="msg">Tap 'Load CSV from GitHub'<br>to fetch latest coordinates</p>
   </div>
 </div>
 
@@ -823,15 +888,13 @@
 </div><!-- end panel-stepper -->
 
 <footer>
-  <button class="btn" onclick="fetchData()">↻ Refresh</button>
-  <button class="btn sec" onclick="document.getElementById('file-input').click()">Load CSV</button>
-  <input type="file" id="file-input" accept=".csv">
-  <div id="status">Connecting...</div>
+  <button class="btn" onclick="fetchData()">↻ Load CSV from GitHub</button>
+  <div id="status">—</div>
 </footer>
 
 <script>
 const API_URL = 'https://api.github.com/repos/mattdennison77/arc-circle-fill/contents/arc_circle_report.csv';
-const STEPPER_VERSION = '1.3.2';
+const STEPPER_VERSION = '1.4.0';
 
 // Set all version labels from constant
 window.addEventListener('DOMContentLoaded', () => {
@@ -859,18 +922,11 @@ async function fetchData() {
     const csvText = atob(base64);
     parse(csvText);
   } catch(e) {
-    setStatus('err', 'Failed — load CSV manually');
-    showMsg('Could not reach GitHub.<br>Load CSV manually.');
+    setStatus('err', 'Failed — check connection');
+    showMsg('Could not reach GitHub.<br>Check your connection and try again.');
   }
 }
 
-document.getElementById('file-input').addEventListener('change', e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => parse(ev.target.result);
-  r.readAsText(f);
-});
 
 let arcData   = [];
 let viewRight = [1, 0];
@@ -1373,8 +1429,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown') go(cur + 1);
 });
 
-fetchData();
-
 // ── Tab switching ─────────────────────────────────────────────────────────────
 function switchTab(tab) {
   document.getElementById('panel-stepper').style.display = tab === 'stepper' ? 'flex' : 'none';
@@ -1390,13 +1444,14 @@ function toggleMenu() {
 function openTool(tool) {
   toggleMenu();
   document.getElementById('modal-backdrop').style.display = 'block';
-  ['rpm','trig','fillet','tap'].forEach(t => {
+  ['rpm','trig','fillet','tap','arc'].forEach(t => {
     document.getElementById('modal-' + t).style.display = t === tool ? 'flex' : 'none';
     document.getElementById('modal-' + t).style.flexDirection = 'column';
   });
   if (tool === 'rpm')    updateCalcDiaButton();
   if (tool === 'fillet') filletDraw(null);
   if (tool === 'tap')    tapReset();
+  if (tool === 'arc')    arcDraw(null);
 }
 
 function closeTool(tool) {
@@ -1405,7 +1460,7 @@ function closeTool(tool) {
 }
 
 function closeAllTools() {
-  ['rpm','trig','fillet','tap'].forEach(t => document.getElementById('modal-' + t).style.display = 'none');
+  ['rpm','trig','fillet','tap','arc'].forEach(t => document.getElementById('modal-' + t).style.display = 'none');
   document.getElementById('modal-backdrop').style.display = 'none';
   document.getElementById('menu-dropdown').style.display  = 'none';
   tapReset();
@@ -2069,6 +2124,309 @@ function tapReset() {
   if (btn) btn.style.transform = '';
 }
 
+// ── Arc Circle Calculator ─────────────────────────────────────────────────────
+// Lathe style: origin at large diameter edge
+// Arc defined by radius R, start diameter D1 (large), end diameter D2 (small)
+// Circles placed along inner arc (radius = R - insert_radius)
+// Spacing from cusp height: d = 2*sqrt(R²-(R-h)²) or manual
+
+let arcMode = 'cusp'; // 'cusp' or 'space'
+
+function arcSetMode(mode) {
+  arcMode = mode;
+  document.getElementById('ac-cusp-row').style.display  = mode === 'cusp'  ? 'flex' : 'none';
+  document.getElementById('ac-space-row').style.display = mode === 'space' ? 'flex' : 'none';
+  document.getElementById('ac-cusp-btn').className  = mode === 'cusp'  ? 'btn'     : 'btn sec';
+  document.getElementById('ac-space-btn').className = mode === 'space' ? 'btn'     : 'btn sec';
+  arcCalc();
+}
+
+function arcCalc() {
+  const R    = parseFloat(document.getElementById('ac-r').value);
+  const D1   = parseFloat(document.getElementById('ac-d1').value);
+  const D2   = parseFloat(document.getElementById('ac-d2').value);
+  const ins  = parseFloat(document.getElementById('ac-ins').value);
+  const cusp = parseFloat(document.getElementById('ac-cusp').value);
+  const spc  = parseFloat(document.getElementById('ac-space').value);
+  const res  = document.getElementById('arc-result');
+
+  if (isNaN(R) || isNaN(D1) || isNaN(D2) || isNaN(ins)) {
+    res.textContent = 'Enter R, D1, D2 and insert diameter';
+    arcDraw(null);
+    document.getElementById('arc-coords').style.display = 'none';
+    return;
+  }
+
+  if (D1 <= D2) { res.textContent = '⚠ D1 must be greater than D2'; arcDraw(null); return; }
+
+  const r1      = D1 / 2;   // start radius (large)
+  const r2      = D2 / 2;   // end radius (small)
+  const insR    = ins / 2;  // insert radius
+  const innerR  = R - insR; // radius of circle centres arc
+
+  if (innerR <= 0) { res.textContent = '⚠ Insert too large for arc radius'; arcDraw(null); return; }
+
+  // Arc centre is offset from origin so arc passes through r1 at Z=0 and r2 at Z=L
+  // Origin at (Z=0, r=r1) — large diameter edge
+  // Arc centre at (Z=0, r = r1 - R) — directly inward from origin by R
+  // Arc sweeps from angle pointing at origin (rightward) downward to D2
+  // Angle at D2: cos(a) = (r1-R - r2) / (-R) ... let's use geometry directly
+
+  // Centre of arc in (Z, r) coordinates: (0, r1 - R)
+  // Wait — for a concave arc (like a ball-nose profile):
+  // Arc centre at (Zc, rc) such that distance to (0, r1) = R and distance to (ZL, r2) = R
+  // Simplest: centre at (0, r1-R) giving a vertical tangent at origin
+  // Then end point: Zc=0, rc=r1-R
+  // Point on arc: (Z, r) where Z²+(r-(r1-R))²=R²
+  // At r=r2: Z = sqrt(R²-(r2-(r1-R))²) = sqrt(R²-(R-(r1-r2))²) = sqrt(2R*h - h²) where h=r1-r2
+
+  // Calculate spacing
+  let spacing;
+  if (arcMode === 'cusp') {
+    if (isNaN(cusp) || cusp <= 0) { res.textContent = 'Enter cusp height'; arcDraw(null); return; }
+    spacing = 2 * Math.sqrt(insR*insR - (insR-cusp)*(insR-cusp));
+  } else {
+    if (isNaN(spc) || spc <= 0) { res.textContent = 'Enter spacing'; arcDraw(null); return; }
+    spacing = spc;
+  }
+
+  const h = r1 - r2; // step height (radial)
+
+  // Arc geometry — same as fillet calculator:
+  // Centre at (arcL, r2+R) — L axially from origin, R above D2
+  // Tangent to D2 at bottom: (arcL, r2) — directly below centre
+  // Tangent to shoulder at: (0, r2+R) — directly left of centre
+  // When R <= h: arc meets shoulder partway up, shoulder continues to D1
+  // When R > h:  arc blends directly into D1 surface
+
+  let arcL;
+  if (R <= h) {
+    arcL = R; // quarter circle — L = R
+  } else {
+    const inner2 = 2*R*h - h*h;
+    if (inner2 < 0) { res.textContent = '⚠ Invalid geometry'; arcDraw(null); return; }
+    arcL = Math.sqrt(inner2);
+  }
+
+  // Arc centre (outer arc)
+  const arcCenZ = arcL;
+  const arcCenR = r2 + R;
+
+  // Circle centres are offset INWARD from the outer arc surface by insR
+  // For a circular arc, the offset curve is a concentric arc with radius R-insR
+  // BUT the endpoints need to be correct:
+  // First circle: at Z=0, offset inward from surface point (0, arcStartR)
+  //   Surface normal at Z=0 is horizontal (pointing left) → offset goes right along Z
+  //   Actually at Z=0 the arc is tangent to the shoulder (vertical), so normal is horizontal
+  //   Insert centre at (insR, arcStartR) — Z offset by insR, same r
+  // Last circle: at Z=arcL, surface tangent is vertical (tangent to D2)
+  //   Normal at Z=arcL points upward (away from centreline)
+  //   Insert centre at (arcL, r2+insR) — same Z, r offset up by insR
+
+  // For intermediate positions, walk along outer arc and offset inward by insR
+  // Outer arc: centre (arcCenZ, arcCenR), radius R
+  // At angle a from centre: point = (arcCenZ + R*cos(a), arcCenR + R*sin(a))
+  // Normal (inward) at this point points from surface toward centre
+  // Inward normal direction: (arcCenZ - point.z, arcCenR - point.r) normalized = (-cos(a), -sin(a))
+  // Offset point (circle centre): surface_point + insR * inward_normal
+  //   = (arcCenZ + R*cos(a) - insR*cos(a), arcCenR + R*sin(a) - insR*sin(a))
+  //   = (arcCenZ + (R-insR)*cos(a), arcCenR + (R-insR)*sin(a))
+  // This IS a concentric arc with radius (R-insR)! ✓
+
+  // So inner arc centre = same as outer arc centre = (arcL, r2+R)
+  // Inner arc radius = R - insR
+  const innerArcR = R - insR;
+  if (innerArcR <= 0) { res.textContent = '⚠ Insert too large for arc radius'; arcDraw(null); return; }
+
+  // Start angle: angle from arc centre to first circle centre (0, r1-insR)
+  // First circle at (insR, r1-insR) — offset from surface corner
+  // But simpler: first circle centre Z=insR (tangent to Z=0 face), r = r1-insR (tangent to D1 surface)
+  // This point must lie on inner arc:
+  // distance from (arcL, r2+R) to (insR, r1-insR) should = R-insR
+  // Let's just use the angle directly:
+  const startZ = insR;
+  const endZ   = arcL;
+  const endR   = r2 + insR;
+
+  // Find where inner arc crosses Z=insR (first circle tangent to Z=0 face)
+  // Take the LOWER intersection (sin < 0) — circle sits inside the concave arc
+  const cosStart = (startZ - arcCenZ) / innerArcR;
+  if (Math.abs(cosStart) > 1) { res.textContent = '⚠ Insert too large — cannot fit first circle'; arcDraw(null); return; }
+  const startAngle = -Math.acos(cosStart); // negative = lower half, sin < 0
+  const startR     = arcCenR + innerArcR * Math.sin(startAngle);
+
+  const endAngle = Math.atan2(endR - arcCenR, endZ - arcCenZ);
+
+  // Sweep clockwise (decreasing angle)
+  let sweep = endAngle - startAngle;
+  if (sweep > 0) sweep -= 2 * Math.PI; // ensure clockwise
+
+  const arcLength  = Math.abs(sweep) * innerArcR;
+  const nGaps      = Math.max(1, Math.round(arcLength / spacing));
+  const actualStep = sweep / nGaps;
+  const nCircles   = nGaps + 1;
+
+  const circles = [];
+  for (let i = 0; i < nCircles; i++) {
+    const a   = startAngle + i * actualStep;
+    const cz  = arcCenZ + innerArcR * Math.cos(a);
+    const cr  = arcCenR + innerArcR * Math.sin(a);
+    circles.push({ z: cz, r: cr, xDia: cr * 2, step: i + 1 });
+  }
+  console.log('first:', circles[0], 'last:', circles[circles.length-1]);
+
+  // Display result
+  res.innerHTML = `${nCircles} circles &nbsp;|&nbsp; Arc L=${arcL.toFixed(3)}mm &nbsp;|&nbsp; Spacing=${spacing.toFixed(3)}mm`;
+
+  // Coordinate table
+  const tableEl = document.getElementById('arc-coord-table');
+  tableEl.innerHTML = circles.map(c =>
+    `<div style="display:flex;justify-content:space-between;padding:2px 4px;border-bottom:1px solid #1a1a1a">
+      <span style="color:#777">${c.step}</span>
+      <span>X <b style="color:#ff6a00">${c.xDia.toFixed(4)}</b></span>
+      <span>Z <b style="color:#ff6a00">${c.z.toFixed(4)}</b></span>
+    </div>`
+  ).join('');
+  document.getElementById('arc-coords').style.display = 'block';
+
+  arcDraw({ R, r1, r2, insR, innerArcR, arcCenZ, arcCenR, arcL, circles, h });
+}
+
+function arcDraw(vals) {
+  const svg = document.getElementById('arc-svg');
+  const W = 300, H = 200;
+  const orange = '#ff6a00', dark = '#222222', grey = '#888888', blue = '#4488cc';
+
+  if (!vals) {
+    svg.innerHTML = `<rect width="${W}" height="${H}" fill="white"/>
+      <text x="150" y="100" font-size="11" fill="#bbbbbb" text-anchor="middle" font-family="monospace">Enter values to preview</text>`;
+    return;
+  }
+
+  const { R, r1, r2, insR, innerArcR, arcCenZ, arcCenR, arcL, circles, h } = vals;
+
+  // Layout: origin at top-left (Z=0, r=r1)
+  // Z increases rightward, r increases upward
+  const pad  = 30;
+  const zMax = arcL * 1.4 + insR * 2;
+  const rMax = r1   * 1.15 + insR;
+  const sc   = Math.min((W - pad*2) / zMax, (H - pad*2) / rMax) * 0.9;
+
+  const originX = pad + insR * sc;
+  const originY = pad + insR * sc;
+
+  function pz(z) { return originX + z * sc; }
+  function pr(r) { return originY + (r1 - r) * sc; }
+
+  let html = `<rect width="${W}" height="${H}" fill="white"/>`;
+
+  // Centreline
+  html += `<line x1="${pz(-insR*0.5)}" y1="${pr(0)}" x2="${pz(arcL*1.2)}" y2="${pr(0)}" stroke="#dddddd" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+
+  // D1 surface
+  html += `<line x1="${pz(-insR*0.5)}" y1="${pr(r1)}" x2="${pz(0)}" y2="${pr(r1)}" stroke="${dark}" stroke-width="2"/>`;
+
+  // Arc: centre at (arcCenZ, arcCenR), start at Z=0, end at (arcL, r2)
+  const arcStartZ = 0;
+  const arcStartR = R <= h ? r2 + R : r1;
+  const arcEndZ   = arcL;
+  const arcEndR   = r2;
+
+  const svgStartX = pz(arcStartZ), svgStartY = pr(arcStartR);
+  const svgEndX   = pz(arcEndZ),   svgEndY   = pr(arcEndR);
+  const svgR      = R * sc;
+  // sweep-flag=0 gives correct concave shape with our Y-flipped coordinate system
+  html += `<path d="M${svgStartX},${svgStartY} A${svgR},${svgR} 0 0,0 ${svgEndX},${svgEndY}" fill="none" stroke="${dark}" stroke-width="2"/>`;
+
+  // Shoulder above arc if R <= h
+  if (R <= h) {
+    html += `<line x1="${pz(0)}" y1="${pr(r1)}" x2="${pz(0)}" y2="${pr(arcStartR)}" stroke="${dark}" stroke-width="2"/>`;
+  }
+
+  // D2 surface
+  html += `<line x1="${pz(arcL)}" y1="${pr(r2)}" x2="${pz(arcL*1.2)}" y2="${pr(r2)}" stroke="${dark}" stroke-width="2"/>`;
+
+  // Origin marker
+  html += `<circle cx="${pz(0)}" cy="${pr(r1)}" r="4" fill="${orange}"/>`;
+  html += `<text x="${pz(0)+6}" y="${pr(r1)-4}" font-size="9" fill="${orange}" font-family="monospace" font-weight="bold">Z0</text>`;
+
+  // Labels
+  html += `<text x="${pz(-insR*0.3)}" y="${pr(r1)-10}" font-size="9" fill="${orange}" text-anchor="middle" font-family="monospace">Ø${(r1*2).toFixed(1)}</text>`;
+  html += `<text x="${pz(arcL*1.1)}" y="${pr(r2)-8}" font-size="9" fill="${orange}" text-anchor="start" font-family="monospace">Ø${(r2*2).toFixed(1)}</text>`;
+  html += `<text x="${pz(arcL*0.4)}" y="${pr((r1+r2)/2)-10}" font-size="9" fill="${blue}" text-anchor="middle" font-family="monospace">R${R.toFixed(1)}</text>`;
+
+  // L dimension
+  const dimY = pr(0) + 14;
+  html += `<line x1="${pz(0)}" y1="${dimY}" x2="${pz(arcL)}" y2="${dimY}" stroke="${grey}" stroke-width="1"/>`;
+  html += `<polygon points="${pz(0)},${dimY} ${pz(0)+5},${dimY-3} ${pz(0)+5},${dimY+3}" fill="${grey}"/>`;
+  html += `<polygon points="${pz(arcL)},${dimY} ${pz(arcL)-5},${dimY-3} ${pz(arcL)-5},${dimY+3}" fill="${grey}"/>`;
+  html += `<text x="${pz(arcL/2)}" y="${dimY+11}" font-size="9" fill="${grey}" text-anchor="middle" font-family="monospace">L=${arcL.toFixed(2)}</text>`;
+
+  // Draw circles
+  circles.forEach((c, i) => {
+    const isFirst = i === 0;
+    const isLast  = i === circles.length - 1;
+    const fill    = isFirst || isLast ? 'rgba(255,106,0,0.15)' : 'none';
+    const stroke  = blue;
+    html += `<circle cx="${pz(c.z)}" cy="${pr(c.r)}" r="${Math.max(1, insR*sc)}" fill="${fill}" stroke="${stroke}" stroke-width="0.8"/>`;
+    if (isFirst || isLast || circles.length <= 8) {
+      html += `<text x="${pz(c.z)}" y="${pr(c.r)+3}" font-size="7" fill="${grey}" text-anchor="middle" font-family="monospace">${c.step}</text>`;
+    }
+  });
+
+  svg.innerHTML = html;
+}
+
+function arcClear() {
+  ['ac-r','ac-d1','ac-d2','ac-ins','ac-cusp','ac-space'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('arc-result').textContent = 'Enter values to calculate';
+  document.getElementById('arc-coords').style.display = 'none';
+  arcDraw(null);
+}
+
+// Pinch zoom for arc preview
+(function() {
+  let az=1, apx=0, apy=0, at0=null, ad0=null;
+  function tdist(a,b){return Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);}
+  function applyArcZoom(){
+    const svg=document.getElementById('arc-svg');
+    const w=300/az,h=200/az;
+    const cx=150-apx,cy=100-apy;
+    svg.setAttribute('viewBox',`${cx-w/2} ${cy-h/2} ${w} ${h}`);
+  }
+  window.addEventListener('load',()=>{
+    const el=document.getElementById('arc-preview-wrap');
+    if(!el)return;
+    el.addEventListener('touchstart',e=>{
+      if(e.touches.length===1){at0=e.touches[0];ad0=null;}
+      else if(e.touches.length===2){ad0=tdist(e.touches[0],e.touches[1]);at0=null;}
+      e.preventDefault();
+    },{passive:false});
+    el.addEventListener('touchmove',e=>{
+      e.preventDefault();
+      const sw=el.clientWidth||300,sh=el.clientHeight||200;
+      if(e.touches.length===1&&at0){
+        apx+=(e.touches[0].clientX-at0.clientX)/sw*(300/az);
+        apy+=(e.touches[0].clientY-at0.clientY)/sh*(200/az);
+        at0=e.touches[0];applyArcZoom();
+      }else if(e.touches.length===2&&ad0!==null){
+        const d1=tdist(e.touches[0],e.touches[1]);
+        az=Math.max(0.5,Math.min(10,az*(d1/ad0)));
+        ad0=d1;applyArcZoom();
+      }
+    },{passive:false});
+    el.addEventListener('touchend',e=>{
+      if(e.touches.length<2)ad0=null;
+      if(e.touches.length===1)at0=e.touches[0];
+      if(e.touches.length===0)at0=null;
+      e.preventDefault();
+    },{passive:false});
+    el.addEventListener('dblclick',()=>{az=1;apx=0;apy=0;applyArcZoom();});
+  });
+})();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
