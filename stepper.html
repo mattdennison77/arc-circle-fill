@@ -894,7 +894,7 @@
 
 <script>
 const API_URL = 'https://api.github.com/repos/mattdennison77/arc-circle-fill/contents/arc_circle_report.csv';
-const STEPPER_VERSION = '1.4.2';
+const STEPPER_VERSION = '1.4.5';
 
 // Set all version labels from constant
 window.addEventListener('DOMContentLoaded', () => {
@@ -1223,21 +1223,21 @@ function drawPreview() {
     }
   });
 
-  // Map step to sketch-local circle position using dedupOffset
-  // dedupOffset tells us how many circles at the start of ad.circles were skipped
-  // so ad.circles[dedupOffset + j] corresponds to arcRows[j]
+  // Match active circle by step index within arc
+  // addin v1.2.9 preserves placement order, so circles[j] = arcRows[j]
   let activePos = null;
+  const curRow  = rows[cur];
   arcData.forEach((ad, ai) => {
     if (!ad.circles || !ad.circles.length) return;
-    const offset  = ad.dedupOffset || 0;
+    if (parseInt(curRow.arc) !== ai + 1) return;
+
     const arcRows = rows.filter(r => parseInt(r.arc) === ai + 1)
                        .sort((a, b) => parseInt(a.step) - parseInt(b.step));
-    const sc = ad.circles.slice()
-      .sort((a, b) => (a[0]*a[0] + a[1]*a[1]) - (b[0]*b[0] + b[1]*b[1]));
+    const offset = ad.dedupOffset || 0;
 
     for (let j = 0; j < arcRows.length; j++) {
       if (parseInt(arcRows[j].step) === curStep) {
-        const c = sc[j + offset];
+        const c = ad.circles[j + offset];
         if (c) activePos = { cx: c[0], cy: c[1] };
         break;
       }
