@@ -318,6 +318,196 @@
     .nav-btn    { padding: 10px; }
   }
 
+
+  /* ── Hamburger menu button ── */
+  .menu-btn {
+    background: transparent;
+    border: none;
+    color: #ff6a00;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 2px 6px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── Dropdown menu ── */
+  .menu-dropdown {
+    position: absolute;
+    top: 48px;
+    right: 8px;
+    background: #1a1a1a;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 200;
+    min-width: 220px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+  .menu-item {
+    display: block;
+    width: 100%;
+    padding: 14px 18px;
+    background: transparent;
+    border: none;
+    color: #e0e0e0;
+    font-family: monospace;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s;
+  }
+  .menu-item:active { background: #2a2a2a; }
+  .menu-divider { height: 1px; background: #333333; }
+
+  /* ── Modal backdrop ── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 300;
+  }
+
+  /* ── Modal ── */
+  .modal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #0f0f0f;
+    border-top: 2px solid #ff6a00;
+    border-radius: 16px 16px 0 0;
+    z-index: 400;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .modal-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid #2a2a2a;
+    position: sticky;
+    top: 0;
+    background: #0f0f0f;
+    z-index: 1;
+  }
+  .modal-title {
+    font-family: monospace;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    color: #ff6a00;
+    text-transform: uppercase;
+  }
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: #777777;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    touch-action: manipulation;
+  }
+  .modal-close:active { color: #ff6a00; }
+  .modal-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── Trig calculator ── */
+  .trig-preview {
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+  }
+  .trig-preview svg { width: 100%; height: 100%; touch-action: none; }
+
+  .trig-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .trig-cell {
+    background: #111111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+  }
+  .trig-lbl {
+    font-family: monospace;
+    font-size: 10px;
+    color: #777777;
+    letter-spacing: 0.5px;
+  }
+  .trig-hint { color: #444444; }
+  .trig-input {
+    font-size: 20px !important;
+    text-align: left !important;
+    padding-right: 24px;
+  }
+  .trig-unit {
+    position: absolute;
+    right: 10px;
+    bottom: 12px;
+    font-family: monospace;
+    font-size: 14px;
+    color: #555555;
+  }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    display: flex;
+    flex-shrink: 0;
+    background: #111111;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 8px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #777777;
+    font-family: monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    touch-action: manipulation;
+  }
+  .tab-btn.active { color: #ff6a00; border-bottom-color: #ff6a00; }
+
+  #panel-stepper { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  #panel-calc    { flex: 1; overflow-y: auto; background: #0a0a0a; display: none; }
+
+  .calc-wrap   { padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .calc-title  { font-family: monospace; font-size: 14px; letter-spacing: 1.5px; color: #ff6a00; text-transform: uppercase; }
+  .calc-sub    { font-size: 11px; color: #555555; font-family: monospace; margin-top: -8px; }
+  .calc-row    { display: flex; align-items: center; gap: 10px; background: #111111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px 14px; }
+  .calc-label  { font-family: monospace; font-size: 11px; color: #777777; width: 100px; flex-shrink: 0; }
+  .calc-input  { flex: 1; background: transparent; border: none; outline: none; font-family: monospace; font-size: 22px; color: #f0f0f0; text-align: right; min-width: 0; }
+  .calc-input::placeholder { color: #333333; }
+  .calc-input.computed { color: #ff6a00; }
+  .calc-unit   { font-family: monospace; font-size: 11px; color: #555555; flex-shrink: 0; white-space: nowrap; }
+  .calc-select { background: #1a1a1a; border: 1px solid #333333; border-radius: 4px; color: #aaaaaa; font-family: monospace; font-size: 11px; padding: 4px 6px; outline: none; }
+  .calc-result { background: #111111; border: 1px solid rgba(255,106,0,0.3); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 13px; color: #ff6a00; min-height: 48px; text-align: center; }
+  .calc-btns   { display: flex; gap: 10px; }
+  .calc-formula { font-family: monospace; font-size: 10px; color: #333333; text-align: center; padding-top: 4px; }
+
   .spin {
     display: inline-block; width: 12px; height: 12px;
     border: 2px solid #2a2a2a; border-top-color: #ff6a00;
@@ -330,13 +520,152 @@
 <body>
 
 <div class="hdr">
-  <div class="hdr-title">⊙ COORD STEPPER</div>
-  <div class="hdr-badge" id="badge">— / —</div>
+  <div>
+    <div class="hdr-title">⊙ COORD STEPPER</div>
+    <div id="hdr-ver" style="font-family:monospace;font-size:9px;color:#555555;letter-spacing:1px;margin-top:1px;">v1.2.8</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="hdr-badge" id="badge">— / —</div>
+    <button class="menu-btn" id="menu-btn" onclick="toggleMenu()">☰</button>
+  </div>
 </div>
+
+<!-- Dropdown menu -->
+<div class="menu-dropdown" id="menu-dropdown" style="display:none">
+  <button class="menu-item" onclick="openTool('rpm')">⚙ RPM / Surface Speed</button>
+  <button class="menu-item" onclick="openTool('trig')">△ Trig Calculator</button>
+  <button class="menu-item" onclick="openTool('fillet')">╰ Fillet Calculator</button>
+  <div class="menu-divider"></div>
+  <button class="menu-item" onclick="toggleMenu()">✕ Close</button>
+</div>
+
+<!-- RPM Modal -->
+<div class="modal" id="modal-rpm" style="display:none">
+  <div class="modal-hdr">
+    <div class="modal-title">⚙ RPM / Surface Speed</div>
+    <button class="modal-close" onclick="closeTool('rpm')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="calc-sub">Enter any two values — the third is calculated</div>
+    <div class="calc-row">
+      <div class="calc-label">RPM</div>
+      <input class="calc-input" id="c-rpm" type="number" inputmode="decimal" placeholder="e.g. 1200" oninput="calcSolve('rpm')">
+      <div class="calc-unit">rev/min</div>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">Surface Speed</div>
+      <input class="calc-input" id="c-ss" type="number" inputmode="decimal" placeholder="e.g. 200" oninput="calcSolve('ss')">
+      <select class="calc-select" id="c-unit" onchange="calcSolve('')">
+        <option value="m">m/min</option>
+        <option value="ft">ft/min</option>
+      </select>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">Diameter</div>
+      <input class="calc-input" id="c-dia" type="number" inputmode="decimal" placeholder="e.g. 50" oninput="calcSolve('dia')">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-result" id="calc-result">Enter any two values to calculate the third</div>
+    <div class="calc-btns">
+      <button class="btn" onclick="calcClear()">Clear</button>
+      <button class="btn sec" id="btn-from-step" onclick="calcFromStep()" style="display:none">Use Current Ø</button>
+    </div>
+    <div class="calc-formula">RPM = (Surface Speed × 1000) ÷ (π × Diameter)</div>
+  </div>
+</div>
+
+<!-- Trig Modal -->
+<div class="modal" id="modal-trig" style="display:none">
+  <div class="modal-hdr">
+    <div class="modal-title">△ Right Angle Triangle</div>
+    <button class="modal-close" onclick="closeTool('trig')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="calc-sub">Enter any two values — remainder calculated</div>
+
+    <!-- Triangle SVG preview -->
+    <div class="trig-preview">
+      <svg id="trig-svg" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <!-- Inputs -->
+    <div class="trig-grid">
+      <div class="trig-cell">
+        <div class="trig-lbl">Side A <span class="trig-hint">(adjacent)</span></div>
+        <input class="calc-input trig-input" id="t-a" type="number" inputmode="decimal" placeholder="—" oninput="trigSolve('a')">
+      </div>
+      <div class="trig-cell">
+        <div class="trig-lbl">Side B <span class="trig-hint">(opposite)</span></div>
+        <input class="calc-input trig-input" id="t-b" type="number" inputmode="decimal" placeholder="—" oninput="trigSolve('b')">
+      </div>
+      <div class="trig-cell">
+        <div class="trig-lbl">Side C <span class="trig-hint">(hypotenuse)</span></div>
+        <input class="calc-input trig-input" id="t-c" type="number" inputmode="decimal" placeholder="—" oninput="trigSolve('c')">
+      </div>
+      <div class="trig-cell">
+        <div class="trig-lbl">Angle α <span class="trig-hint">(at A/C)</span></div>
+        <input class="calc-input trig-input" id="t-alpha" type="number" inputmode="decimal" placeholder="—" oninput="trigSolve('alpha')">
+        <div class="trig-unit">°</div>
+      </div>
+      <div class="trig-cell">
+        <div class="trig-lbl">Angle β <span class="trig-hint">(at B/C)</span></div>
+        <input class="calc-input trig-input" id="t-beta" type="number" inputmode="decimal" placeholder="—" oninput="trigSolve('beta')">
+        <div class="trig-unit">°</div>
+      </div>
+    </div>
+
+    <div class="calc-result" id="trig-result">Enter any two values to solve the triangle</div>
+    <button class="btn" onclick="trigClear()">Clear</button>
+  </div>
+</div>
+
+<!-- Modal backdrop -->
+<!-- Fillet Modal -->
+<div class="modal" id="modal-fillet" style="display:none">
+  <div class="modal-hdr">
+    <div class="modal-title">╰ Fillet Calculator</div>
+    <button class="modal-close" onclick="closeTool('fillet')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="calc-sub">Convex fillet between two diameters — enter any 3 values</div>
+
+    <!-- Fillet diagram -->
+    <div class="trig-preview" style="height:180px;">
+      <svg id="fillet-svg" viewBox="0 0 300 180" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <!-- Inputs -->
+    <div class="calc-row">
+      <div class="calc-label">Radius R</div>
+      <input class="calc-input" id="f-r" type="number" inputmode="decimal" placeholder="—" oninput="filletSolve('r')">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">Diameter D1 <span style="font-size:9px;color:#555">(large)</span></div>
+      <input class="calc-input" id="f-d1" type="number" inputmode="decimal" placeholder="—" oninput="filletSolve('d1')">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">Diameter D2 <span style="font-size:9px;color:#555">(small)</span></div>
+      <input class="calc-input" id="f-d2" type="number" inputmode="decimal" placeholder="—" oninput="filletSolve('d2')">
+      <div class="calc-unit">mm</div>
+    </div>
+    <div class="calc-row">
+      <div class="calc-label">Length L <span style="font-size:9px;color:#555">(axial)</span></div>
+      <input class="calc-input" id="f-l" type="number" inputmode="decimal" placeholder="—" oninput="filletSolve('l')">
+      <div class="calc-unit">mm</div>
+    </div>
+
+    <div class="calc-result" id="fillet-result">Enter any 3 values to calculate the 4th</div>
+    <button class="btn" onclick="filletClear()">Clear</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop" style="display:none" onclick="closeAllTools()"></div>
 
 <div class="preview" id="preview" style="display:none">
   <svg id="preview-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style="touch-action:none;"></svg>
-  <div class="preview-ver" id="preview-ver">v1.0.1</div>
+  <div class="preview-ver" id="preview-ver">v1.2.8</div>
   <div class="preview-controls">
     <button class="prev-btn" onclick="rotatePreview(-90)" title="Rotate CCW">↺</button>
     <button class="prev-btn" onclick="rotatePreview(90)"  title="Rotate CW">↻</button>
@@ -350,6 +679,14 @@
   <span id="fi-file">—</span>
   <span id="fi-sketch">—</span>
 </div>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-stepper" onclick="switchTab('stepper')">⊙ Stepper</button>
+</div>
+
+<!-- Stepper panel -->
+<div id="panel-stepper">
 
 <div class="axes" id="axes" style="display:none">
   <span>Arc</span>
@@ -368,6 +705,8 @@
   <div class="prog-bar" id="prog-bar" style="width:0%"></div>
 </div>
 
+</div><!-- end panel-stepper -->
+
 <footer>
   <button class="btn" onclick="fetchData()">↻ Refresh</button>
   <button class="btn sec" onclick="document.getElementById('file-input').click()">Load CSV</button>
@@ -377,7 +716,15 @@
 
 <script>
 const API_URL = 'https://api.github.com/repos/mattdennison77/arc-circle-fill/contents/arc_circle_report.csv';
-const STEPPER_VERSION = '1.0.1';
+const STEPPER_VERSION = '1.3.0';
+
+// Set all version labels from constant
+window.addEventListener('DOMContentLoaded', () => {
+  const hdrVer = document.getElementById('hdr-ver');
+  if (hdrVer) hdrVer.textContent = 'v' + STEPPER_VERSION;
+  const preVer = document.getElementById('preview-ver');
+  if (preVer) preVer.textContent = 'v' + STEPPER_VERSION;
+});
 
 let rows = [], cur = 0, l1 = 'A1', l2 = 'A2';
 
@@ -913,7 +1260,618 @@ document.addEventListener('keydown', e => {
 
 fetchData();
 
-// ── Register Service Worker (PWA) ─────────────────────────────────────────────
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('panel-stepper').style.display = tab === 'stepper' ? 'flex' : 'none';
+  document.getElementById('tab-stepper').classList.toggle('active', tab === 'stepper');
+}
+
+// ── Hamburger menu ────────────────────────────────────────────────────────────
+function toggleMenu() {
+  const m = document.getElementById('menu-dropdown');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+
+function openTool(tool) {
+  toggleMenu();
+  document.getElementById('modal-backdrop').style.display = 'block';
+  ['rpm','trig','fillet'].forEach(t => {
+    document.getElementById('modal-' + t).style.display = t === tool ? 'flex' : 'none';
+    document.getElementById('modal-' + t).style.flexDirection = 'column';
+  });
+  if (tool === 'rpm')    updateCalcDiaButton();
+  if (tool === 'fillet') filletDraw(null);
+}
+
+function closeTool(tool) {
+  document.getElementById('modal-' + tool).style.display = 'none';
+  document.getElementById('modal-backdrop').style.display = 'none';
+}
+
+function closeAllTools() {
+  ['rpm','trig','fillet'].forEach(t => document.getElementById('modal-' + t).style.display = 'none');
+  document.getElementById('modal-backdrop').style.display = 'none';
+  document.getElementById('menu-dropdown').style.display  = 'none';
+}
+
+// Close menu when tapping outside
+document.addEventListener('click', e => {
+  const menu = document.getElementById('menu-dropdown');
+  const btn  = document.getElementById('menu-btn');
+  if (menu.style.display !== 'none' && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+// ── Trig Calculator ───────────────────────────────────────────────────────────
+function trigSolve(edited) {
+  const a     = parseFloat(document.getElementById('t-a').value);
+  const b     = parseFloat(document.getElementById('t-b').value);
+  const c     = parseFloat(document.getElementById('t-c').value);
+  const alpha = parseFloat(document.getElementById('t-alpha').value);
+  const beta  = parseFloat(document.getElementById('t-beta').value);
+  const res   = document.getElementById('trig-result');
+
+  // Clear computed styling
+  ['t-a','t-b','t-c','t-alpha','t-beta'].forEach(id =>
+    document.getElementById(id).classList.remove('computed'));
+
+  const deg2rad = Math.PI / 180;
+  const rad2deg = 180 / Math.PI;
+  let A = a, B = b, C = c, AL = alpha, BE = beta;
+
+  const filled = [!isNaN(A),!isNaN(B),!isNaN(C),!isNaN(AL),!isNaN(BE)].filter(Boolean).length;
+  if (filled < 2) { res.textContent = 'Enter any two values to solve the triangle'; trigDraw(null); return; }
+
+  // Solve all values
+  try {
+    if (!isNaN(AL) && !isNaN(BE)) { /* check */ } else if (!isNaN(AL)) BE = 90 - AL; else if (!isNaN(BE)) AL = 90 - BE;
+    const alR = AL * deg2rad, beR = BE * deg2rad;
+
+    if (!isNaN(A) && !isNaN(B))  { C = Math.sqrt(A*A + B*B); AL = Math.atan(A/B)*rad2deg; BE = 90-AL; }
+    else if (!isNaN(A) && !isNaN(C)) { B = Math.sqrt(C*C - A*A); AL = Math.asin(A/C)*rad2deg; BE = 90-AL; }
+    else if (!isNaN(B) && !isNaN(C)) { A = Math.sqrt(C*C - B*B); BE = Math.asin(B/C)*rad2deg; AL = 90-BE; }
+    else if (!isNaN(A) && !isNaN(AL)) { B = A/Math.tan(AL*deg2rad); C = A/Math.sin(AL*deg2rad); BE=90-AL; }
+    else if (!isNaN(A) && !isNaN(BE)) { B = A*Math.tan(BE*deg2rad); C = A/Math.cos(BE*deg2rad); AL=90-BE; }
+    else if (!isNaN(B) && !isNaN(AL)) { A = B*Math.tan(AL*deg2rad); C = B/Math.cos(AL*deg2rad); BE=90-AL; }
+    else if (!isNaN(B) && !isNaN(BE)) { A = B/Math.tan(BE*deg2rad); C = B/Math.sin(BE*deg2rad); AL=90-BE; }
+    else if (!isNaN(C) && !isNaN(AL)) { A = C*Math.sin(AL*deg2rad); B = C*Math.cos(AL*deg2rad); BE=90-AL; }
+    else if (!isNaN(C) && !isNaN(BE)) { B = C*Math.sin(BE*deg2rad); A = C*Math.cos(BE*deg2rad); AL=90-BE; }
+
+    // Fill computed fields
+    const fields = {a:A, b:B, c:C, alpha:AL, beta:BE};
+    const originals = {a, b, c, alpha, beta};
+    Object.entries(fields).forEach(([k,v]) => {
+      const el = document.getElementById('t-'+k);
+      const isAngle = k==='alpha'||k==='beta';
+      if (isNaN(originals[k]) && !isNaN(v)) {
+        el.value = v.toFixed(isAngle ? 4 : 4);
+        el.classList.add('computed');
+      }
+    });
+
+    res.innerHTML = `A=${A.toFixed(3)} &nbsp; B=${B.toFixed(3)} &nbsp; C=${C.toFixed(3)}<br>α=${AL.toFixed(4)}° &nbsp; β=${BE.toFixed(4)}°`;
+    trigDraw({ A, B, C, AL, BE });
+
+  } catch(e) {
+    res.textContent = 'Could not solve — check values are consistent';
+    trigDraw(null);
+  }
+}
+
+function trigDraw(vals) {
+  const svg = document.getElementById('trig-svg');
+  if (!vals) { svg.innerHTML = trigEmptyDraw(); return; }
+
+  const { A, B, C, AL, BE } = vals;
+  const W = 300, H = 200;
+  const pad = 30;
+
+  // Scale triangle to fit
+  const maxA = W - pad*2, maxB = H - pad*2;
+  const scaleA = maxA / A, scaleB = maxB / B;
+  const sc = Math.min(scaleA, scaleB) * 0.85;
+  const sA = A * sc, sB = B * sc;
+
+  // Position: right angle at bottom-left
+  const ox = pad + (maxA - sA) / 2;
+  const oy = pad + maxB - (maxB - sB) / 2;
+
+  // Triangle vertices
+  const p1 = { x: ox,      y: oy      }; // right angle
+  const p2 = { x: ox + sA, y: oy      }; // angle alpha
+  const p3 = { x: ox,      y: oy - sB }; // angle beta
+
+  const fs = 11; // font size
+  const orange = '#ff6a00', dark = '#222222', grey = '#888888';
+
+  let html = `<rect width="300" height="200" fill="white"/>`;
+
+  // Triangle fill
+  html += `<polygon points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}" fill="rgba(255,106,0,0.06)" stroke="${dark}" stroke-width="1.5"/>`;
+
+  // Right angle marker
+  const rm = 10;
+  html += `<polyline points="${p1.x+rm},${p1.y} ${p1.x+rm},${p1.y-rm} ${p1.x},${p1.y-rm}" fill="none" stroke="${dark}" stroke-width="1"/>`;
+
+  // Side labels
+  const midAB = { x: (p1.x+p2.x)/2, y: p1.y + 14 };
+  const midBC = { x: (p1.x+p3.x)/2 - 22, y: (p1.y+p3.y)/2 };
+  const midAC = { x: (p2.x+p3.x)/2 + 14, y: (p2.y+p3.y)/2 };
+
+  html += `<text x="${midAB.x}" y="${midAB.y}" font-size="${fs}" fill="${orange}" text-anchor="middle" font-family="monospace" font-weight="bold">A=${A.toFixed(2)}</text>`;
+  html += `<text x="${midBC.x}" y="${midBC.y}" font-size="${fs}" fill="${orange}" text-anchor="middle" font-family="monospace" font-weight="bold">B=${B.toFixed(2)}</text>`;
+  html += `<text x="${midAC.x}" y="${midAC.y}" font-size="${fs}" fill="${orange}" text-anchor="middle" font-family="monospace" font-weight="bold" transform="rotate(${-AL},${midAC.x},${midAC.y})">C=${C.toFixed(2)}</text>`;
+
+  // Angle labels
+  html += `<text x="${p2.x - 8}" y="${p2.y - 8}" font-size="${fs}" fill="${grey}" text-anchor="end" font-family="monospace">α=${AL.toFixed(2)}°</text>`;
+  html += `<text x="${p3.x + 8}" y="${p3.y + 14}" font-size="${fs}" fill="${grey}" text-anchor="start" font-family="monospace">β=${BE.toFixed(2)}°</text>`;
+  html += `<text x="${p1.x + 14}" y="${p1.y - 14}" font-size="${fs}" fill="${grey}" text-anchor="start" font-family="monospace">90°</text>`;
+
+  svg.innerHTML = html;
+}
+
+function trigEmptyDraw() {
+  // Show a labelled placeholder triangle before values are entered
+  const W=300, H=200, pad=30;
+  const p1 = {x:pad,       y:H-pad};    // right angle
+  const p2 = {x:W-pad,     y:H-pad};    // alpha
+  const p3 = {x:pad,       y:pad};      // beta
+  const rm = 12;
+  const orange='#ffb366', grey='#bbbbbb', dark='#cccccc';
+  return `
+    <rect width="300" height="200" fill="white"/>
+    <polygon points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}" fill="rgba(255,106,0,0.04)" stroke="${dark}" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <polyline points="${p1.x+rm},${p1.y} ${p1.x+rm},${p1.y-rm} ${p1.x},${p1.y-rm}" fill="none" stroke="${dark}" stroke-width="1"/>
+    <text x="${(p1.x+p2.x)/2}" y="${p1.y+16}" font-size="11" fill="${orange}" text-anchor="middle" font-family="monospace" font-weight="bold">A (adjacent)</text>
+    <text x="${p1.x-8}" y="${(p1.y+p3.y)/2}" font-size="11" fill="${orange}" text-anchor="end" font-family="monospace" font-weight="bold">B (opp)</text>
+    <text x="${(p2.x+p3.x)/2+18}" y="${(p2.y+p3.y)/2}" font-size="11" fill="${orange}" text-anchor="start" font-family="monospace" font-weight="bold">C (hyp)</text>
+    <text x="${p2.x-6}" y="${p2.y-10}" font-size="11" fill="${grey}" text-anchor="end" font-family="monospace">α</text>
+    <text x="${p3.x+8}" y="${p3.y+16}" font-size="11" fill="${grey}" text-anchor="start" font-family="monospace">β</text>
+    <text x="${p1.x+16}" y="${p1.y-16}" font-size="11" fill="${grey}" text-anchor="start" font-family="monospace">90°</text>`;
+}
+
+// ── Pinch zoom for trig preview ───────────────────────────────────────────────
+(function() {
+  let trigZoom = 1, trigPanX = 0, trigPanY = 0;
+  let t0 = null, d0 = null;
+
+  function tdist(a, b) { return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY); }
+
+  function applyTrigZoom() {
+    const svg = document.getElementById('trig-svg');
+    const w = 300 / trigZoom, h = 200 / trigZoom;
+    const cx = 150 - trigPanX, cy = 100 - trigPanY;
+    svg.setAttribute('viewBox', `${cx - w/2} ${cy - h/2} ${w} ${h}`);
+  }
+
+  window.addEventListener('load', () => {
+    const el = document.getElementById('trig-svg').parentElement;
+    if (!el) return;
+
+    el.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) { t0 = e.touches[0]; d0 = null; }
+      else if (e.touches.length === 2) { d0 = tdist(e.touches[0], e.touches[1]); t0 = null; }
+      e.preventDefault();
+    }, { passive: false });
+
+    el.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const sw = el.clientWidth || 300, sh = el.clientHeight || 200;
+      if (e.touches.length === 1 && t0) {
+        const dx = e.touches[0].clientX - t0.clientX;
+        const dy = e.touches[0].clientY - t0.clientY;
+        trigPanX += (dx / sw) * (300 / trigZoom);
+        trigPanY += (dy / sh) * (200 / trigZoom);
+        t0 = e.touches[0];
+        applyTrigZoom();
+      } else if (e.touches.length === 2 && d0 !== null) {
+        const d1 = tdist(e.touches[0], e.touches[1]);
+        trigZoom = Math.max(0.5, Math.min(10, trigZoom * (d1 / d0)));
+        d0 = d1;
+        applyTrigZoom();
+      }
+    }, { passive: false });
+
+    el.addEventListener('touchend', e => {
+      if (e.touches.length < 2) d0 = null;
+      if (e.touches.length === 1) t0 = e.touches[0];
+      if (e.touches.length === 0) t0 = null;
+      e.preventDefault();
+    }, { passive: false });
+
+    // Reset zoom when trig is cleared or modal opened
+    el.addEventListener('dblclick', () => {
+      trigZoom = 1; trigPanX = 0; trigPanY = 0; applyTrigZoom();
+    });
+  });
+})();
+
+function trigClear() {
+  ['t-a','t-b','t-c','t-alpha','t-beta'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('computed');
+  });
+  document.getElementById('trig-result').textContent = 'Enter any two values to solve the triangle';
+  trigDraw(null);
+}
+
+// Initialise trig diagram
+window.addEventListener('load', () => { trigDraw(null); });
+
+// ── RPM / Surface Speed Calculator ───────────────────────────────────────────
+// Formula: RPM = (SS * 1000) / (π * D)   [SS in m/min, D in mm]
+//          SS  = (RPM * π * D) / 1000
+//          D   = (SS * 1000) / (π * RPM)
+
+let lastEdited = ''; // track which field was last manually edited
+
+function calcSolve(edited) {
+  if (edited) lastEdited = edited;
+
+  const rpmEl  = document.getElementById('c-rpm');
+  const ssEl   = document.getElementById('c-ss');
+  const diaEl  = document.getElementById('c-dia');
+  const unitEl = document.getElementById('c-unit');
+  const res    = document.getElementById('calc-result');
+
+  const unit   = unitEl.value; // 'm' or 'ft'
+  const ftFactor = 0.3048;     // 1 ft = 0.3048 m
+
+  // Clear computed styling
+  [rpmEl, ssEl, diaEl].forEach(el => el.classList.remove('computed'));
+
+  const rpm = parseFloat(rpmEl.value);
+  const ss  = parseFloat(ssEl.value);
+  const dia = parseFloat(diaEl.value);
+
+  // Convert ss to m/min for calculation
+  const ss_m = unit === 'ft' ? ss * ftFactor : ss;
+
+  // Count how many are filled
+  const filled = [!isNaN(rpm), !isNaN(ss), !isNaN(dia)].filter(Boolean).length;
+
+  if (filled < 2) {
+    res.textContent = 'Enter any two values to calculate the third';
+    return;
+  }
+
+  if (filled === 3) {
+    // All three filled — verify consistency
+    const calc_rpm = (ss_m * 1000) / (Math.PI * dia);
+    const diff = Math.abs(calc_rpm - rpm) / rpm * 100;
+    if (diff > 1) {
+      res.innerHTML = `⚠ Values inconsistent (${diff.toFixed(1)}% error)`;
+    } else {
+      res.innerHTML = `✓ Values consistent`;
+    }
+    return;
+  }
+
+  // Calculate the missing one
+  if (isNaN(rpm)) {
+    const result = (ss_m * 1000) / (Math.PI * dia);
+    rpmEl.value = result.toFixed(0);
+    rpmEl.classList.add('computed');
+    res.innerHTML = `RPM = <b>${result.toFixed(0)}</b> rev/min`;
+  } else if (isNaN(ss)) {
+    const result_m = (rpm * Math.PI * dia) / 1000;
+    const result   = unit === 'ft' ? result_m / ftFactor : result_m;
+    ssEl.value = result.toFixed(1);
+    ssEl.classList.add('computed');
+    const unitLabel = unit === 'ft' ? 'ft/min' : 'm/min';
+    res.innerHTML = `Surface Speed = <b>${result.toFixed(1)} ${unitLabel}</b>`;
+  } else if (isNaN(dia)) {
+    const result = (ss_m * 1000) / (Math.PI * rpm);
+    diaEl.value = result.toFixed(2);
+    diaEl.classList.add('computed');
+    res.innerHTML = `Diameter = <b>${result.toFixed(2)} mm</b>`;
+  }
+}
+
+function calcClear() {
+  ['c-rpm', 'c-ss', 'c-dia'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('computed');
+  });
+  document.getElementById('calc-result').textContent = 'Enter any two values to calculate the third';
+  lastEdited = '';
+}
+
+function updateCalcDiaButton() {
+  // Show "Use Current Ø" if we have rows and the current step has a diameter value
+  const btn = document.getElementById('btn-from-step');
+  btn.style.display = (rows.length > 0) ? 'block' : 'none';
+}
+
+function calcFromStep() {
+  // Use the first coordinate of the current step as diameter
+  // Works best in lathe mode where a1 = X diameter
+  if (!rows.length) return;
+  const r = rows[cur];
+  const dia = parseFloat(r.a1);
+  if (!isNaN(dia) && dia > 0) {
+    const diaEl = document.getElementById('c-dia');
+    diaEl.value = dia.toFixed(2);
+    diaEl.classList.remove('computed');
+    calcSolve('dia');
+  }
+}
+
+// ── Fillet Calculator ─────────────────────────────────────────────────────────
+// Geometry: CONVEX fillet tangent to shoulder face and smaller diameter surface
+// h = (D1-D2)/2 = step height (radial)
+// Formula: L = sqrt(2Rh - h²)  =  sqrt(R²-(R-h)²)
+// Note: R >= h for the fillet to reach D2. When R=h, L=h (quarter circle).
+// Rearrangements:
+//   R = (L²+h²)/(2h)
+//   D2 = D1 - 2h  where h = R - sqrt(R²-L²)
+//   D1 = D2 + 2h  where h = R - sqrt(R²-L²)
+
+function filletSolve(edited) {
+  const rEl  = document.getElementById('f-r');
+  const d1El = document.getElementById('f-d1');
+  const d2El = document.getElementById('f-d2');
+  const lEl  = document.getElementById('f-l');
+  const res  = document.getElementById('fillet-result');
+
+  // Clear computed styling on the field being edited
+  if (edited) document.getElementById('f-'+edited).classList.remove('computed');
+
+  const R  = parseFloat(rEl.value);
+  const D1 = parseFloat(d1El.value);
+  const D2 = parseFloat(d2El.value);
+  const L  = parseFloat(lEl.value);
+
+  const filled = [!isNaN(R),!isNaN(D1),!isNaN(D2),!isNaN(L)].filter(Boolean).length;
+
+  if (filled < 3) {
+    res.textContent = 'Enter any 3 values to calculate the 4th';
+    filletDraw(null);
+    return;
+  }
+
+  // If all 4 filled, clear the computed one and recalculate
+  if (filled === 4) {
+    const computed = [rEl,d1El,d2El,lEl].find(el => el.classList.contains('computed'));
+    if (computed) { computed.value = ''; computed.classList.remove('computed'); }
+  }
+
+  // Re-read after potential clear
+  const R2  = parseFloat(rEl.value);
+  const D12 = parseFloat(d1El.value);
+  const D22 = parseFloat(d2El.value);
+  const L2  = parseFloat(lEl.value);
+
+  // Recount — must have exactly 3 filled after clear
+  const filled2 = [!isNaN(R2),!isNaN(D12),!isNaN(D22),!isNaN(L2)].filter(Boolean).length;
+  if (filled2 < 3) {
+    res.textContent = 'Enter any 3 values to calculate the 4th';
+    filletDraw(null);
+    return;
+  }
+
+  let rR=R2, rD1=D12, rD2=D22, rL=L2;
+
+  try {
+    if (isNaN(L2)) {
+      const h = (D12 - D22) / 2;
+      if (h <= 0)  throw 'D1 must be greater than D2';
+      if (R2 <= 0) throw 'R must be greater than 0';
+      const inner = 2*R2*h - h*h;
+      if (inner < 0) throw 'Invalid — check values';
+      rL = Math.sqrt(inner);
+      lEl.value = rL.toFixed(4);
+      lEl.classList.add('computed');
+
+    } else if (isNaN(R2)) {
+      const h = (D12 - D22) / 2;
+      if (h <= 0)  throw 'D1 must be greater than D2';
+      if (L2 <= 0) throw 'L must be greater than 0';
+      rR = (L2*L2 + h*h) / (2*h);
+      rEl.value = rR.toFixed(4);
+      rEl.classList.add('computed');
+
+    } else if (isNaN(D22)) {
+      if (L2 > R2) throw 'L cannot exceed R';
+      const h = R2 - Math.sqrt(R2*R2 - L2*L2);
+      rD2 = D12 - 2*h;
+      if (rD2 <= 0) throw 'Result gives invalid D2 — check values';
+      d2El.value = rD2.toFixed(4);
+      d2El.classList.add('computed');
+
+    } else if (isNaN(D12)) {
+      if (L2 > R2) throw 'L cannot exceed R';
+      const h = R2 - Math.sqrt(R2*R2 - L2*L2);
+      rD1 = D22 + 2*h;
+      d1El.value = rD1.toFixed(4);
+      d1El.classList.add('computed');
+    }
+
+    const stepH = (rD1 - rD2) / 2;
+    const angle = Math.asin(Math.min(rL / rR, 1)) * 180 / Math.PI;
+    const largeR = rR > stepH;
+    res.innerHTML =
+      `R=${rR.toFixed(4)}mm &nbsp; D1=${rD1.toFixed(4)}mm &nbsp; D2=${rD2.toFixed(4)}mm &nbsp; L=${rL.toFixed(4)}mm<br>` +
+      `Step h=${stepH.toFixed(4)}mm &nbsp; Fillet angle=${angle.toFixed(2)}°` +
+      (largeR ? `<br><span style="color:#aaaaaa;font-size:10px">R > step height — arc blends into D1 surface</span>` : '');
+    filletDraw({ R: rR, D1: rD1, D2: rD2, L: rL });
+
+  } catch(e) {
+    console.error('filletSolve error:', e);
+    res.textContent = typeof e === 'string' ? '⚠ ' + e : '⚠ ' + (e.message || 'Could not solve — check values');
+    filletDraw(null);
+  }
+}
+
+function filletDraw(vals) {
+  const svg = document.getElementById('fillet-svg');
+  const W = 300, H = 180;
+  const orange = '#ff6a00', dark = '#222222', grey = '#888888', blue = '#4488cc';
+
+  if (!vals) {
+    // Empty state diagram with labels
+    const cx = 180, cy = 90, r = 55;
+    const p_shoulder = { x: cx - r, y: cy - r };
+    svg.innerHTML = `
+      <rect width="${W}" height="${H}" fill="white"/>
+      <!-- D1 surface -->
+      <line x1="20" y1="35" x2="${cx-r}" y2="35" stroke="#cccccc" stroke-width="1.5"/>
+      <!-- shoulder face -->
+      <line x1="${cx-r}" y1="35" x2="${cx-r}" y2="35" stroke="#cccccc" stroke-width="1.5"/>
+      <!-- fillet arc placeholder -->
+      <path d="M${cx-r},35 Q${cx-r+30},${cy-r+30} ${cx},${cy}" fill="none" stroke="#cccccc" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <!-- D2 surface -->
+      <line x1="${cx}" y1="${cy}" x2="${W-20}" y2="${cy}" stroke="#cccccc" stroke-width="1.5"/>
+      <!-- Labels -->
+      <text x="80" y="25" font-size="11" fill="${orange}" text-anchor="middle" font-family="monospace" font-weight="bold">D1</text>
+      <text x="${cx-r-12}" y="60" font-size="11" fill="${grey}" text-anchor="middle" font-family="monospace">shoulder</text>
+      <text x="${W-60}" y="${cy-10}" font-size="11" fill="${orange}" text-anchor="middle" font-family="monospace" font-weight="bold">D2</text>
+      <text x="200" y="50" font-size="11" fill="${blue}" text-anchor="middle" font-family="monospace">R</text>
+      <!-- L arrow -->
+      <line x1="${cx-r}" y1="${cy+30}" x2="${cx}" y2="${cy+30}" stroke="${grey}" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="${cx}" y1="${cy+30}" x2="${cx-r}" y2="${cy+30}" stroke="${grey}" stroke-width="1"/>
+      <text x="${cx-r/2}" y="${cy+44}" font-size="11" fill="${grey}" text-anchor="middle" font-family="monospace">L</text>
+    `;
+    return;
+  }
+
+  const { R, D1, D2, L } = vals;
+  const r1 = D1/2, r2 = D2/2;
+  const h  = r1 - r2;  // step height (radial)
+
+  // Scale to fit: map real geometry to SVG
+  // Horizontal: shoulder at left, fillet spans L, then D2 continues right
+  // Vertical: centreline at bottom, D1/2 and D2/2 upward (show cross-section top half)
+  const pad = 28;
+  const totalW = L * 2 + 20; // mm — geometry width shown
+  const totalH = r1 * 1.3;   // mm — geometry height shown
+  const scX = (W - pad*2) / totalW;
+  const scY = (H - pad*2) / totalH;
+  const sc  = Math.min(scX, scY);
+
+  // Origin: centreline at bottom, shoulder at left
+  const ox = pad + 10;
+  const oy = H - pad;
+
+  function px(xMm) { return ox + xMm * sc; }
+  function py(yMm) { return oy - yMm * sc; }  // flip Y
+
+  // Key points
+  const shoulderX = 0, d1Y = r1, d2Y = r2;
+  // h already declared above as r1 - r2
+
+  // Centre at (L, r2+R) — always
+  const filletCentreX = L;
+  const filletCentreY = r2 + R;
+
+  // Arc always tangent to D2 at bottom: (L, r2)
+  const arcEndX = L;
+  const arcEndY = r2;
+
+  // Start point depends on whether R > h:
+  // R <= h: arc starts on shoulder face at (0, r2+R) — full corner fillet
+  // R > h:  shoulder tangent point is above D1, so arc starts where it crosses D1 level
+  //         Use intersection of circle with y = r1:
+  //         (x-L)² + (r1 - (r2+R))² = R²  →  x = L - sqrt(R²-(R-h)²) = L - L_val = 0 ✓
+  //         Actually when R > h the arc start x = L - sqrt(R²-(R-h)²) which is positive
+  //         meaning it starts to the RIGHT of the shoulder — not on the shoulder at all
+  //         In this case the arc simply blends into D1 surface without touching the shoulder
+
+  let arcStartX, arcStartY, showShoulder;
+
+  if (R <= h) {
+    // Arc starts on shoulder face
+    arcStartX  = 0;
+    arcStartY  = r2 + R;
+    showShoulder = true;
+  } else {
+    // Arc is too large to touch shoulder — starts where it intersects D1 level
+    const dx = Math.sqrt(R*R - (R-h)*(R-h)); // = L
+    arcStartX  = L - dx; // = 0 when R=h, > 0 when R>h... wait
+    // Actually: centre is at (L, r2+R). Circle intersects y=r1 where:
+    // (x-L)² = R² - (r1-(r2+R))² = R² - (R-h)²
+    // x = L ± sqrt(R²-(R-h)²)
+    // Left intersection: x = L - sqrt(R²-(R-h)²) = L - L_computed
+    // Since L = sqrt(2Rh-h²) = sqrt(R²-(R-h)²), this = 0
+    // So when R>h the arc ALWAYS starts at x=0 (the shoulder) at height r1
+    arcStartX  = 0;
+    arcStartY  = r1;  // arc clips at D1 level
+    showShoulder = false; // no shoulder drop needed — arc meets D1 surface directly
+  }
+
+  const d1LineStart = -totalW * 0.3;
+
+  // SVG pixel coords
+  const svgArcStartX = px(arcStartX);
+  const svgArcStartY = py(arcStartY);
+  const svgArcEndX   = px(arcEndX);
+  const svgArcEndY   = py(arcEndY);
+  const svgR         = R * sc;
+
+  const arcPath = `M${svgArcStartX},${svgArcStartY} A${svgR},${svgR} 0 0,0 ${svgArcEndX},${svgArcEndY}`;
+
+  let html = `<rect width="${W}" height="${H}" fill="white"/>`;
+
+  // D1 surface
+  html += `<line x1="${px(d1LineStart)}" y1="${py(d1Y)}" x2="${px(arcStartX)}" y2="${py(d1Y)}" stroke="${dark}" stroke-width="2"/>`;
+
+  // Shoulder face — only draw if fillet doesn't reach D1 directly
+  if (showShoulder) {
+    html += `<line x1="${px(shoulderX)}" y1="${py(d1Y)}" x2="${px(shoulderX)}" y2="${py(arcStartY)}" stroke="${dark}" stroke-width="2"/>`;
+  }
+
+  // Concave fillet arc
+  html += `<path d="${arcPath}" fill="none" stroke="${orange}" stroke-width="2.5"/>`;
+
+  // D2 surface
+  html += `<line x1="${px(arcEndX)}" y1="${py(d2Y)}" x2="${px(totalW)}" y2="${py(d2Y)}" stroke="${dark}" stroke-width="2"/>`;
+  // Fillet centre dot
+  const fcx = px(filletCentreX), fcy = py(filletCentreY);
+  html += `<circle cx="${fcx}" cy="${fcy}" r="3" fill="${blue}" stroke="none"/>`;
+
+  // Radius line from centre to D2 tangent (downward — straight vertical)
+  html += `<line x1="${fcx}" y1="${fcy}" x2="${px(arcEndX)}" y2="${py(arcEndY)}" stroke="${blue}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+
+  // R label
+  const rLblX = fcx + 6;
+  const rLblY = (fcy + py(arcEndY)) / 2;
+  html += `<text x="${rLblX}" y="${rLblY}" font-size="10" fill="${blue}" text-anchor="start" font-family="monospace">R=${R.toFixed(2)}</text>`;
+
+  // D1 label
+  html += `<text x="${px(d1LineStart+5)}" y="${py(d1Y)-6}" font-size="10" fill="${orange}" font-family="monospace" font-weight="bold">D1=${D1.toFixed(2)}</text>`;
+
+  // D2 label
+  html += `<text x="${px(filletEndX+3)}" y="${py(d2Y)-6}" font-size="10" fill="${orange}" font-family="monospace" font-weight="bold">D2=${D2.toFixed(2)}</text>`;
+
+  // L dimension arrow
+  const arrY = py(d2Y) + 22;
+  html += `<line x1="${px(shoulderX)}" y1="${arrY}" x2="${px(filletEndX)}" y2="${arrY}" stroke="${grey}" stroke-width="1"/>`;
+  html += `<polygon points="${px(shoulderX)},${arrY} ${px(shoulderX)+6},${arrY-3} ${px(shoulderX)+6},${arrY+3}" fill="${grey}"/>`;
+  html += `<polygon points="${px(filletEndX)},${arrY} ${px(filletEndX)-6},${arrY-3} ${px(filletEndX)-6},${arrY+3}" fill="${grey}"/>`;
+  html += `<text x="${(px(shoulderX)+px(filletEndX))/2}" y="${arrY+12}" font-size="10" fill="${grey}" text-anchor="middle" font-family="monospace">L=${L.toFixed(2)}</text>`;
+
+  // Step height dimension
+  const stepX = px(shoulderX) - 18;
+  html += `<line x1="${stepX}" y1="${py(d1Y)}" x2="${stepX}" y2="${py(d2Y)}" stroke="${grey}" stroke-width="1"/>`;
+  html += `<polygon points="${stepX},${py(d1Y)} ${stepX-3},${py(d1Y)+6} ${stepX+3},${py(d1Y)+6}" fill="${grey}"/>`;
+  html += `<polygon points="${stepX},${py(d2Y)} ${stepX-3},${py(d2Y)-6} ${stepX+3},${py(d2Y)-6}" fill="${grey}"/>`;
+  html += `<text x="${stepX-4}" y="${(py(d1Y)+py(d2Y))/2}" font-size="9" fill="${grey}" text-anchor="end" font-family="monospace" transform="rotate(-90,${stepX-4},${(py(d1Y)+py(d2Y))/2})">h=${h.toFixed(2)}</text>`;
+
+  svg.innerHTML = html;
+}
+
+function filletClear() {
+  ['f-r','f-d1','f-d2','f-l'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+    el.classList.remove('computed');
+  });
+  document.getElementById('fillet-result').textContent = 'Enter any 3 values to calculate the 4th';
+  filletDraw(null);
+}
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
