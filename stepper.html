@@ -508,6 +508,77 @@
   .calc-btns   { display: flex; gap: 10px; }
   .calc-formula { font-family: monospace; font-size: 10px; color: #333333; text-align: center; padding-top: 4px; }
 
+  /* ── Tap timer ── */
+  .tap-rpm {
+    font-family: monospace;
+    font-size: clamp(48px, 18vw, 90px);
+    font-weight: bold;
+    color: #ff6a00;
+    letter-spacing: -2px;
+    line-height: 1;
+    text-align: center;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tap-sub {
+    font-family: monospace;
+    font-size: 11px;
+    color: #555555;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .tap-btn {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #ff8c30, #cc4400);
+    border: 4px solid #ff6a00;
+    color: #ffffff;
+    font-family: monospace;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 6px 24px rgba(255,106,0,0.4);
+    transition: transform 0.08s, box-shadow 0.08s;
+    user-select: none;
+  }
+  .tap-btn:active {
+    transform: scale(0.93);
+    box-shadow: 0 2px 10px rgba(255,106,0,0.3);
+  }
+  .tap-stats {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+  }
+  .tap-stat {
+    flex: 1;
+    text-align: center;
+    background: #111111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 10px 6px;
+  }
+  .tap-stat-val {
+    font-family: monospace;
+    font-size: 18px;
+    color: #f0f0f0;
+    font-weight: bold;
+  }
+  .tap-stat-lbl {
+    font-family: monospace;
+    font-size: 9px;
+    color: #555555;
+    letter-spacing: 0.5px;
+    margin-top: 3px;
+  }
+
   .spin {
     display: inline-block; width: 12px; height: 12px;
     border: 2px solid #2a2a2a; border-top-color: #ff6a00;
@@ -535,6 +606,7 @@
   <button class="menu-item" onclick="openTool('rpm')">⚙ RPM / Surface Speed</button>
   <button class="menu-item" onclick="openTool('trig')">△ Trig Calculator</button>
   <button class="menu-item" onclick="openTool('fillet')">╰ Fillet Calculator</button>
+  <button class="menu-item" onclick="openTool('tap')">⏱ Tap RPM Timer</button>
   <div class="menu-divider"></div>
   <button class="menu-item" onclick="toggleMenu()">✕ Close</button>
 </div>
@@ -661,6 +733,49 @@
   </div>
 </div>
 
+<!-- Tap Timer Modal -->
+<div class="modal" id="modal-tap" style="display:none">
+  <div class="modal-hdr">
+    <div class="modal-title">⏱ Tap RPM Timer</div>
+    <button class="modal-close" onclick="closeTool('tap');tapReset()">✕</button>
+  </div>
+  <div class="modal-body" style="align-items:center;gap:20px;">
+
+    <!-- Big RPM display -->
+    <div class="tap-rpm" id="tap-rpm">—</div>
+    <div class="tap-sub" id="tap-sub">Tap the button in time with the spindle</div>
+
+    <!-- Tap button -->
+    <button class="tap-btn" id="tap-btn"
+      ontouchstart="tapRecord(event)" onmousedown="tapRecord(event)">
+      TAP
+    </button>
+
+    <!-- Stats row -->
+    <div class="tap-stats" id="tap-stats" style="display:none">
+      <div class="tap-stat">
+        <div class="tap-stat-val" id="tap-count">0</div>
+        <div class="tap-stat-lbl">taps</div>
+      </div>
+      <div class="tap-stat">
+        <div class="tap-stat-val" id="tap-avg">—</div>
+        <div class="tap-stat-lbl">avg interval ms</div>
+      </div>
+      <div class="tap-stat">
+        <div class="tap-stat-val" id="tap-last">—</div>
+        <div class="tap-stat-lbl">last interval ms</div>
+      </div>
+    </div>
+
+    <!-- Reset -->
+    <button class="btn" onclick="tapReset()" style="width:100%">Reset</button>
+
+    <div class="calc-formula">
+      RPM = 60,000 ÷ average interval (ms)
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="modal-backdrop" style="display:none" onclick="closeAllTools()"></div>
 
 <div class="preview" id="preview" style="display:none">
@@ -716,7 +831,7 @@
 
 <script>
 const API_URL = 'https://api.github.com/repos/mattdennison77/arc-circle-fill/contents/arc_circle_report.csv';
-const STEPPER_VERSION = '1.3.0';
+const STEPPER_VERSION = '1.3.2';
 
 // Set all version labels from constant
 window.addEventListener('DOMContentLoaded', () => {
@@ -1275,12 +1390,13 @@ function toggleMenu() {
 function openTool(tool) {
   toggleMenu();
   document.getElementById('modal-backdrop').style.display = 'block';
-  ['rpm','trig','fillet'].forEach(t => {
+  ['rpm','trig','fillet','tap'].forEach(t => {
     document.getElementById('modal-' + t).style.display = t === tool ? 'flex' : 'none';
     document.getElementById('modal-' + t).style.flexDirection = 'column';
   });
   if (tool === 'rpm')    updateCalcDiaButton();
   if (tool === 'fillet') filletDraw(null);
+  if (tool === 'tap')    tapReset();
 }
 
 function closeTool(tool) {
@@ -1289,9 +1405,10 @@ function closeTool(tool) {
 }
 
 function closeAllTools() {
-  ['rpm','trig','fillet'].forEach(t => document.getElementById('modal-' + t).style.display = 'none');
+  ['rpm','trig','fillet','tap'].forEach(t => document.getElementById('modal-' + t).style.display = 'none');
   document.getElementById('modal-backdrop').style.display = 'none';
   document.getElementById('menu-dropdown').style.display  = 'none';
+  tapReset();
 }
 
 // Close menu when tapping outside
@@ -1660,9 +1777,15 @@ function filletSolve(edited) {
       const h = (D12 - D22) / 2;
       if (h <= 0)  throw 'D1 must be greater than D2';
       if (R2 <= 0) throw 'R must be greater than 0';
-      const inner = 2*R2*h - h*h;
-      if (inner < 0) throw 'Invalid — check values';
-      rL = Math.sqrt(inner);
+      if (R2 <= h) {
+        // R smaller than step height — quarter circle, L = R
+        rL = R2;
+      } else {
+        // R larger than step height — arc blends into D1, L = sqrt(2Rh - h²)
+        const inner = 2*R2*h - h*h;
+        if (inner < 0) throw 'Invalid — check values';
+        rL = Math.sqrt(inner);
+      }
       lEl.value = rL.toFixed(4);
       lEl.classList.add('computed');
 
@@ -1693,10 +1816,12 @@ function filletSolve(edited) {
     const stepH = (rD1 - rD2) / 2;
     const angle = Math.asin(Math.min(rL / rR, 1)) * 180 / Math.PI;
     const largeR = rR > stepH;
+    const quarterCircle = Math.abs(rR - rL) < 0.001;
     res.innerHTML =
       `R=${rR.toFixed(4)}mm &nbsp; D1=${rD1.toFixed(4)}mm &nbsp; D2=${rD2.toFixed(4)}mm &nbsp; L=${rL.toFixed(4)}mm<br>` +
       `Step h=${stepH.toFixed(4)}mm &nbsp; Fillet angle=${angle.toFixed(2)}°` +
-      (largeR ? `<br><span style="color:#aaaaaa;font-size:10px">R > step height — arc blends into D1 surface</span>` : '');
+      (quarterCircle ? `<br><span style="color:#aaaaaa;font-size:10px">Quarter circle — shoulder continues straight to D1</span>` : '') +
+      (largeR && !quarterCircle ? `<br><span style="color:#aaaaaa;font-size:10px">R > step height — arc blends into D1 surface</span>` : '');
     filletDraw({ R: rR, D1: rD1, D2: rD2, L: rL });
 
   } catch(e) {
@@ -1783,10 +1908,10 @@ function filletDraw(vals) {
   let arcStartX, arcStartY, showShoulder;
 
   if (R <= h) {
-    // Arc starts on shoulder face
+    // R smaller than step — quarter circle, arc starts on shoulder at (0, r2+R)
     arcStartX  = 0;
     arcStartY  = r2 + R;
-    showShoulder = true;
+    showShoulder = true;  // show shoulder from D1 down to arc start
   } else {
     // Arc is too large to touch shoulder — starts where it intersects D1 level
     const dx = Math.sqrt(R*R - (R-h)*(R-h)); // = L
@@ -1844,14 +1969,14 @@ function filletDraw(vals) {
   html += `<text x="${px(d1LineStart+5)}" y="${py(d1Y)-6}" font-size="10" fill="${orange}" font-family="monospace" font-weight="bold">D1=${D1.toFixed(2)}</text>`;
 
   // D2 label
-  html += `<text x="${px(filletEndX+3)}" y="${py(d2Y)-6}" font-size="10" fill="${orange}" font-family="monospace" font-weight="bold">D2=${D2.toFixed(2)}</text>`;
+  html += `<text x="${px(arcEndX+3)}" y="${py(d2Y)-6}" font-size="10" fill="${orange}" font-family="monospace" font-weight="bold">D2=${D2.toFixed(2)}</text>`;
 
   // L dimension arrow
   const arrY = py(d2Y) + 22;
-  html += `<line x1="${px(shoulderX)}" y1="${arrY}" x2="${px(filletEndX)}" y2="${arrY}" stroke="${grey}" stroke-width="1"/>`;
+  html += `<line x1="${px(shoulderX)}" y1="${arrY}" x2="${px(arcEndX)}" y2="${arrY}" stroke="${grey}" stroke-width="1"/>`;
   html += `<polygon points="${px(shoulderX)},${arrY} ${px(shoulderX)+6},${arrY-3} ${px(shoulderX)+6},${arrY+3}" fill="${grey}"/>`;
-  html += `<polygon points="${px(filletEndX)},${arrY} ${px(filletEndX)-6},${arrY-3} ${px(filletEndX)-6},${arrY+3}" fill="${grey}"/>`;
-  html += `<text x="${(px(shoulderX)+px(filletEndX))/2}" y="${arrY+12}" font-size="10" fill="${grey}" text-anchor="middle" font-family="monospace">L=${L.toFixed(2)}</text>`;
+  html += `<polygon points="${px(arcEndX)},${arrY} ${px(arcEndX)-6},${arrY-3} ${px(arcEndX)-6},${arrY+3}" fill="${grey}"/>`;
+  html += `<text x="${(px(shoulderX)+px(arcEndX))/2}" y="${arrY+12}" font-size="10" fill="${grey}" text-anchor="middle" font-family="monospace">L=${L.toFixed(2)}</text>`;
 
   // Step height dimension
   const stepX = px(shoulderX) - 18;
@@ -1872,6 +1997,78 @@ function filletClear() {
   document.getElementById('fillet-result').textContent = 'Enter any 3 values to calculate the 4th';
   filletDraw(null);
 }
+
+// ── Tap RPM Timer ─────────────────────────────────────────────────────────────
+let tapTimes    = [];
+let tapTimeout  = null;
+const TAP_RESET_MS  = 3000;  // auto-reset after 3 seconds of no tapping
+const TAP_MAX_STORE = 8;     // rolling window of last 8 intervals
+
+function tapRecord(e) {
+  e.preventDefault(); // prevent double-firing on touch+mouse
+  const now = Date.now();
+
+  // Flash the button
+  const btn = document.getElementById('tap-btn');
+  btn.style.transform = 'scale(0.93)';
+  setTimeout(() => btn.style.transform = '', 100);
+
+  // Store timestamp
+  tapTimes.push(now);
+
+  // Keep only last TAP_MAX_STORE + 1 timestamps (giving TAP_MAX_STORE intervals)
+  if (tapTimes.length > TAP_MAX_STORE + 1) {
+    tapTimes.shift();
+  }
+
+  // Need at least 2 taps to calculate
+  if (tapTimes.length < 2) {
+    document.getElementById('tap-rpm').textContent = '—';
+    document.getElementById('tap-sub').textContent  = 'Keep tapping...';
+    document.getElementById('tap-stats').style.display = 'none';
+    // Reset auto-timeout
+    clearTimeout(tapTimeout);
+    tapTimeout = setTimeout(tapReset, TAP_RESET_MS);
+    return;
+  }
+
+  // Calculate intervals between consecutive taps
+  const intervals = [];
+  for (let i = 1; i < tapTimes.length; i++) {
+    intervals.push(tapTimes[i] - tapTimes[i - 1]);
+  }
+
+  const avgInterval  = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+  const lastInterval = intervals[intervals.length - 1];
+  const rpm          = Math.round(60000 / avgInterval);
+
+  // Update display
+  document.getElementById('tap-rpm').textContent    = rpm;
+  document.getElementById('tap-sub').textContent    = 'RPM  (tap to update)';
+  document.getElementById('tap-stats').style.display = 'flex';
+  document.getElementById('tap-count').textContent  = tapTimes.length;
+  document.getElementById('tap-avg').textContent    = Math.round(avgInterval);
+  document.getElementById('tap-last').textContent   = Math.round(lastInterval);
+
+  // Auto-reset after inactivity
+  clearTimeout(tapTimeout);
+  tapTimeout = setTimeout(tapReset, TAP_RESET_MS);
+}
+
+function tapReset() {
+  tapTimes = [];
+  clearTimeout(tapTimeout);
+  tapTimeout = null;
+  document.getElementById('tap-rpm').textContent    = '—';
+  document.getElementById('tap-sub').textContent    = 'Tap the button in time with the spindle';
+  document.getElementById('tap-stats').style.display = 'none';
+  document.getElementById('tap-count').textContent  = '0';
+  document.getElementById('tap-avg').textContent    = '—';
+  document.getElementById('tap-last').textContent   = '—';
+  const btn = document.getElementById('tap-btn');
+  if (btn) btn.style.transform = '';
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
