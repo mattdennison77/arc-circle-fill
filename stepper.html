@@ -606,7 +606,7 @@
   <button class="menu-item" onclick="openTool('trig')">△ Trig Calculator</button>
   <button class="menu-item" onclick="openTool('fillet')">╰ Fillet Calculator</button>
   <button class="menu-item" onclick="openTool('tap')">⏱ Tap RPM Timer</button>
-  <button class="menu-item" onclick="openTool('arc')">⊙ Arc Circle Calc</button>
+  <button class="menu-item" onclick="openTool('arc')">⊙ Radius Step Coords</button>
   <div class="menu-divider"></div>
   <button class="menu-item" onclick="toggleMenu()">✕ Close</button>
 </div>
@@ -702,8 +702,8 @@
     <div class="calc-sub">Convex fillet between two diameters — enter any 3 values</div>
 
     <!-- Fillet diagram -->
-    <div class="trig-preview" style="height:180px;">
-      <svg id="fillet-svg" viewBox="0 0 300 180" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="trig-preview" style="height:180px;touch-action:none;" id="fillet-preview-wrap">
+      <svg id="fillet-svg" viewBox="0 0 300 180" preserveAspectRatio="xMidYMid meet" style="touch-action:none;"></svg>
     </div>
 
     <!-- Inputs -->
@@ -776,10 +776,10 @@
   </div>
 </div>
 
-<!-- Arc Circle Calculator Modal -->
+<!-- Radius Step Coordsulator Modal -->
 <div class="modal" id="modal-arc" style="display:none">
   <div class="modal-hdr">
-    <div class="modal-title">⊙ Arc Circle Calc</div>
+    <div class="modal-title">⊙ Radius Step Coords</div>
     <button class="modal-close" onclick="closeTool('arc')">✕</button>
   </div>
   <div class="modal-body">
@@ -833,7 +833,9 @@
 
     <!-- Coordinate table -->
     <div id="arc-coords" style="display:none">
-      <div style="font-family:monospace;font-size:11px;color:#ff6a00;letter-spacing:1px;margin-bottom:6px;">COORDINATES (X dia, Z)</div>
+      <div style="font-family:monospace;font-size:11px;color:#ff6a00;letter-spacing:1px;margin-bottom:6px;">
+      COORDINATES (X dia, Z) — ${arcCoordMode === 'tangent' ? 'Bottom Tangent Point' : 'Insert Centre'}
+    </div>
       <div id="arc-coord-table" style="font-family:monospace;font-size:12px;color:#dddddd;line-height:1.8;max-height:180px;overflow-y:auto;background:#111;border:1px solid #2a2a2a;border-radius:6px;padding:8px;"></div>
     </div>
 
@@ -894,7 +896,7 @@
 
 <script>
 const API_URL = 'https://api.github.com/repos/mattdennison77/arc-circle-fill/contents/arc_circle_report.csv';
-const STEPPER_VERSION = '1.4.5';
+const STEPPER_VERSION = '1.6.5';
 
 // Set all version labels from constant
 window.addEventListener('DOMContentLoaded', () => {
@@ -1449,7 +1451,7 @@ function openTool(tool) {
     document.getElementById('modal-' + t).style.flexDirection = 'column';
   });
   if (tool === 'rpm')    updateCalcDiaButton();
-  if (tool === 'fillet') filletDraw(null);
+  if (tool === 'fillet') { filletZoom=1; filletPanX=0; filletPanY=0; filletDraw(null); }
   if (tool === 'tap')    tapReset();
   if (tool === 'arc')    arcDraw(null);
 }
@@ -1604,18 +1606,19 @@ function trigEmptyDraw() {
 }
 
 // ── Pinch zoom for trig preview ───────────────────────────────────────────────
+let trigZoom = 1, trigPanX = 0, trigPanY = 0;
+
+function applyTrigZoom() {
+  const svg = document.getElementById('trig-svg');
+  const w = 300 / trigZoom, h = 200 / trigZoom;
+  const cx = 150 - trigPanX, cy = 100 - trigPanY;
+  svg.setAttribute('viewBox', `${cx - w/2} ${cy - h/2} ${w} ${h}`);
+}
+
 (function() {
-  let trigZoom = 1, trigPanX = 0, trigPanY = 0;
   let t0 = null, d0 = null;
 
   function tdist(a, b) { return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY); }
-
-  function applyTrigZoom() {
-    const svg = document.getElementById('trig-svg');
-    const w = 300 / trigZoom, h = 200 / trigZoom;
-    const cx = 150 - trigPanX, cy = 100 - trigPanY;
-    svg.setAttribute('viewBox', `${cx - w/2} ${cy - h/2} ${w} ${h}`);
-  }
 
   window.addEventListener('load', () => {
     const el = document.getElementById('trig-svg').parentElement;
@@ -1651,11 +1654,6 @@ function trigEmptyDraw() {
       if (e.touches.length === 0) t0 = null;
       e.preventDefault();
     }, { passive: false });
-
-    // Reset zoom when trig is cleared or modal opened
-    el.addEventListener('dblclick', () => {
-      trigZoom = 1; trigPanX = 0; trigPanY = 0; applyTrigZoom();
-    });
   });
 })();
 
@@ -1671,6 +1669,88 @@ function trigClear() {
 
 // Initialise trig diagram
 window.addEventListener('load', () => { trigDraw(null); });
+
+// ── Mouse zoom/pan for previews (PC) ─────────────────────────────────────────
+function addMouseZoomPan(elementId, getZoom, setZoom, getPan, setPan, applyFn, svgW, svgH) {
+  window.addEventListener('load', () => {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    let dragging = false, lastX = 0, lastY = 0;
+
+    el.addEventListener('wheel', e => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.1 : 0.9;
+      setZoom(Math.max(0.5, Math.min(20, getZoom() * factor)));
+      applyFn();
+    }, { passive: false });
+
+    el.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      dragging = true; lastX = e.clientX; lastY = e.clientY;
+      el.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      const sw = el.clientWidth || svgW, sh = el.clientHeight || svgH;
+      const [px, py] = getPan();
+      setPan(px + (dx / sw) * (svgW / getZoom()),
+             py + (dy / sh) * (svgH / getZoom()));
+      applyFn();
+    });
+
+    window.addEventListener('mouseup', () => {
+      dragging = false;
+      el.style.cursor = '';
+    });
+
+    el.addEventListener('dblclick', () => {
+      setZoom(1); setPan(0, 0); applyFn();
+    });
+  });
+}
+
+// Fillet zoom state
+let filletZoom = 1, filletPanX = 0, filletPanY = 0;
+function applyFilletZoom() {
+  const svg = document.getElementById('fillet-svg');
+  const w = 300/filletZoom, h = 180/filletZoom;
+  svg.setAttribute('viewBox', `${150-filletPanX-w/2} ${90-filletPanY-h/2} ${w} ${h}`);
+}
+
+// Attach mouse zoom/pan to trig preview
+addMouseZoomPan(
+  'trig-svg',
+  () => trigZoom, v => { trigZoom = v; },
+  () => [trigPanX, trigPanY], (x, y) => { trigPanX = x; trigPanY = y; },
+  applyTrigZoom, 300, 200
+);
+
+// Attach mouse zoom/pan to fillet preview
+addMouseZoomPan(
+  'fillet-preview-wrap',
+  () => filletZoom, v => { filletZoom = v; },
+  () => [filletPanX, filletPanY], (x, y) => { filletPanX = x; filletPanY = y; },
+  applyFilletZoom, 300, 180
+);
+
+// Attach mouse zoom/pan to arc preview
+addMouseZoomPan(
+  'arc-preview-wrap',
+  () => az, v => { az = v; },
+  () => [apx, apy], (x, y) => { apx = x; apy = y; },
+  applyArcZoom, 300, 200
+);
+
+// Attach mouse zoom/pan to main coord stepper preview
+addMouseZoomPan(
+  'preview',
+  () => viewZoom, v => { viewZoom = v; },
+  () => [viewPanX, viewPanY], (x, y) => { viewPanX = x; viewPanY = y; },
+  applyViewTransform, 300, 200
+);
 
 // ── RPM / Surface Speed Calculator ───────────────────────────────────────────
 // Formula: RPM = (SS * 1000) / (π * D)   [SS in m/min, D in mm]
@@ -2124,13 +2204,14 @@ function tapReset() {
   if (btn) btn.style.transform = '';
 }
 
-// ── Arc Circle Calculator ─────────────────────────────────────────────────────
+// ── Radius Step Coordsulator ─────────────────────────────────────────────────────
 // Lathe style: origin at large diameter edge
 // Arc defined by radius R, start diameter D1 (large), end diameter D2 (small)
 // Circles placed along inner arc (radius = R - insert_radius)
 // Spacing from cusp height: d = 2*sqrt(R²-(R-h)²) or manual
 
-let arcMode = 'cusp'; // 'cusp' or 'space'
+let arcMode      = 'cusp';    // 'cusp' or 'space'
+let arcCoordMode = 'tangent'; // 'tangent' or 'centre'
 
 function arcSetMode(mode) {
   arcMode = mode;
@@ -2138,6 +2219,13 @@ function arcSetMode(mode) {
   document.getElementById('ac-space-row').style.display = mode === 'space' ? 'flex' : 'none';
   document.getElementById('ac-cusp-btn').className  = mode === 'cusp'  ? 'btn'     : 'btn sec';
   document.getElementById('ac-space-btn').className = mode === 'space' ? 'btn'     : 'btn sec';
+  arcCalc();
+}
+
+function arcSetCoordMode(mode) {
+  arcCoordMode = mode;
+  document.getElementById('ac-tangent-btn').className = mode === 'tangent' ? 'btn' : 'btn sec';
+  document.getElementById('ac-centre-btn').className  = mode === 'centre'  ? 'btn' : 'btn sec';
   arcCalc();
 }
 
@@ -2216,44 +2304,47 @@ function arcCalc() {
   const innerArcR = R - insR;
   if (innerArcR <= 0) { res.textContent = '⚠ Insert too large for arc radius'; arcDraw(null); return; }
 
-  // Start angle: from arc centre to arc start point (0, r1)
-  // End angle:   from arc centre to arc end point (arcL, r2) = -π/2
-  const startA  = Math.atan2(r1 - arcCenR, 0 - arcCenZ);
-  const endA    = Math.atan2(r2 - arcCenR, arcL - arcCenZ); // = -π/2
+  // Arc start/end angles — from arc centre to arc surface endpoints
+  const arcStartR = R >= h ? r1 : r2 + R;
+  const startA = Math.atan2(arcStartR - arcCenR, 0    - arcCenZ);
+  const endA   = Math.atan2(r2         - arcCenR, arcL - arcCenZ); // -π/2
 
-  // Sweep from startA to endA — take the shorter arc
   let sweep = endA - startA;
-  // Normalise to (-π, π]
   while (sweep >  Math.PI) sweep -= 2 * Math.PI;
   while (sweep < -Math.PI) sweep += 2 * Math.PI;
 
-  // Number of gaps — exactly as Fusion addin: ceil(|sweep| * inner_r / spacing)
   const minGaps   = Math.ceil(Math.abs(sweep) * innerArcR / spacing);
   const nGaps     = Math.max(minGaps, 1);
-  const nCircles  = nGaps + 1;
   const angleStep = sweep / nGaps;
 
-  // Place circles at equal angle steps — exactly as Fusion addin
-  const circles = [];
-  for (let i = 0; i < nCircles; i++) {
+  // Build arc circles (matching Fusion addin exactly)
+  const arcCircles = [];
+  for (let i = 0; i <= nGaps; i++) {
     const a  = startA + i * angleStep;
     const cz = arcCenZ + innerArcR * Math.cos(a);
     const cr = arcCenR + innerArcR * Math.sin(a);
-    circles.push({ z: cz, r: cr, xDia: cr * 2, step: i + 1 });
+    const dz = cz - arcCenZ, dr = cr - arcCenR;
+    const dist = Math.hypot(dz, dr) || 1;
+    const dispZ = cz + insR * dz / dist;
+    const dispR = cr + insR * dr / dist;
+    arcCircles.push({ z: dispZ, r: dispR, xDia: dispR * 2, cz, cr });
   }
-  console.log('first:', {z: circles[0].z.toFixed(3), xDia: circles[0].xDia.toFixed(3)},
-              'last:',  {z: circles[circles.length-1].z.toFixed(3), xDia: circles[circles.length-1].xDia.toFixed(3)});
 
+  // Prepend setup point at X=D1, Z=0 (tool at origin before arc passes)
+  const circles = [
+    { z: 0, r: r1, xDia: r1 * 2, cz: 0, cr: r1 + insR, setup: true },
+    ...arcCircles
+  ].map((c, i) => ({ ...c, step: i + 1 }));
   // Display result
-  res.innerHTML = `${nCircles} circles &nbsp;|&nbsp; Arc L=${arcL.toFixed(3)}mm &nbsp;|&nbsp; Spacing=${spacing.toFixed(3)}mm`;
+  res.innerHTML = `${circles.length} coords (incl. ★ setup point) &nbsp;|&nbsp; Arc L=${arcL.toFixed(2)}mm &nbsp;|&nbsp; Spacing=${spacing.toFixed(2)}mm`;
 
   // Coordinate table
   const tableEl = document.getElementById('arc-coord-table');
   tableEl.innerHTML = circles.map(c =>
-    `<div style="display:flex;justify-content:space-between;padding:2px 4px;border-bottom:1px solid #1a1a1a">
-      <span style="color:#777">${c.step}</span>
-      <span>X <b style="color:#ff6a00">${c.xDia.toFixed(4)}</b></span>
-      <span>Z <b style="color:#ff6a00">${c.z.toFixed(4)}</b></span>
+    `<div style="display:flex;justify-content:space-between;padding:2px 4px;border-bottom:1px solid #1a1a1a${c.setup ? ';background:rgba(255,106,0,0.08)' : ''}">
+      <span style="color:${c.setup ? '#ff6a00' : '#777'}">${c.step}${c.setup ? ' ★' : ''}</span>
+      <span>X <b style="color:#ff6a00">${c.xDia.toFixed(2)}</b></span>
+      <span>Z <b style="color:#ff6a00">${c.z.toFixed(2)}</b></span>
     </div>`
   ).join('');
   document.getElementById('arc-coords').style.display = 'block';
@@ -2290,12 +2381,20 @@ function arcDraw(vals) {
   let html = `<rect width="${W}" height="${H}" fill="white"/>`;
 
   // Centreline
-  html += `<line x1="${pz(-insR*0.5)}" y1="${pr(0)}" x2="${pz(arcL*1.2)}" y2="${pr(0)}" stroke="#dddddd" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+  html += `<line x1="${pz(-insR*.5)}" y1="${pr(0)}" x2="${pz(arcL*1.2)}" y2="${pr(0)}" stroke="#dddddd" stroke-width="0.8" stroke-dasharray="4,3"/>`;
 
   // D1 surface
-  html += `<line x1="${pz(-insR*0.5)}" y1="${pr(r1)}" x2="${pz(0)}" y2="${pr(r1)}" stroke="${dark}" stroke-width="2"/>`;
+  // D1 line — extended left with dimension arrow pointing to centreline
+  const d1LineLeft = pz(-insR * 2);
+  html += `<line x1="${d1LineLeft}" y1="${pr(r1)}" x2="${pz(0)}" y2="${pr(r1)}" stroke="#222222" stroke-width="0.8"/>`;
 
-  // Arc: centre at (arcCenZ, arcCenR), start at Z=0, end at (arcL, r2)
+  // D1 dimension — line from D1 toward centreline with top arrow and label
+  const d1ArrX = d1LineLeft - 14;
+  html += `<line x1="${d1ArrX}" y1="${pr(r1)}" x2="${d1ArrX}" y2="${pr(0)}" stroke="${grey}" stroke-width="0.8"/>`;
+  html += `<polygon points="${d1ArrX},${pr(r1)} ${d1ArrX-3},${pr(r1)+6} ${d1ArrX+3},${pr(r1)+6}" fill="${grey}"/>`;
+  html += `<text x="${d1ArrX-3}" y="${(pr(r1)+pr(0))/2}" font-size="9" fill="${orange}" text-anchor="end" font-family="monospace" font-weight="bold">Ø${(r1*2).toFixed(1)}</text>`;
+
+  // Arc path
   const arcStartZ = 0;
   const arcStartR = R <= h ? r2 + R : r1;
   const arcEndZ   = arcL;
@@ -2304,42 +2403,49 @@ function arcDraw(vals) {
   const svgStartX = pz(arcStartZ), svgStartY = pr(arcStartR);
   const svgEndX   = pz(arcEndZ),   svgEndY   = pr(arcEndR);
   const svgR      = R * sc;
-  // sweep-flag=0 gives correct concave shape with our Y-flipped coordinate system
-  html += `<path d="M${svgStartX},${svgStartY} A${svgR},${svgR} 0 0,0 ${svgEndX},${svgEndY}" fill="none" stroke="${dark}" stroke-width="2"/>`;
+  html += `<path d="M${svgStartX},${svgStartY} A${svgR},${svgR} 0 0,0 ${svgEndX},${svgEndY}" fill="none" stroke="#222222" stroke-width="0.8"/>`;
 
   // Shoulder above arc if R <= h
   if (R <= h) {
-    html += `<line x1="${pz(0)}" y1="${pr(r1)}" x2="${pz(0)}" y2="${pr(arcStartR)}" stroke="${dark}" stroke-width="2"/>`;
+    html += `<line x1="${pz(0)}" y1="${pr(r1)}" x2="${pz(0)}" y2="${pr(arcStartR)}" stroke="#222222" stroke-width="0.8"/>`;
   }
 
-  // D2 surface
-  html += `<line x1="${pz(arcL)}" y1="${pr(r2)}" x2="${pz(arcL*1.2)}" y2="${pr(r2)}" stroke="${dark}" stroke-width="2"/>`;
+  // D2 line — extended right with dimension arrow
+  const d2LineRight = pz(arcL + insR * 2);
+  html += `<line x1="${pz(arcL)}" y1="${pr(r2)}" x2="${d2LineRight}" y2="${pr(r2)}" stroke="#222222" stroke-width="0.8"/>`;
 
-  // Origin marker
-  html += `<circle cx="${pz(0)}" cy="${pr(r1)}" r="4" fill="${orange}"/>`;
-  html += `<text x="${pz(0)+6}" y="${pr(r1)-4}" font-size="9" fill="${orange}" font-family="monospace" font-weight="bold">Z0</text>`;
+  // D2 dimension — line from D2 toward centreline with top arrow and label
+  const d2ArrX = d2LineRight + 14;
+  html += `<line x1="${d2ArrX}" y1="${pr(r2)}" x2="${d2ArrX}" y2="${pr(0)}" stroke="${grey}" stroke-width="0.8"/>`;
+  html += `<polygon points="${d2ArrX},${pr(r2)} ${d2ArrX-3},${pr(r2)+6} ${d2ArrX+3},${pr(r2)+6}" fill="${grey}"/>`;
+  html += `<text x="${d2ArrX+3}" y="${(pr(r2)+pr(0))/2}" font-size="9" fill="${orange}" text-anchor="start" font-family="monospace" font-weight="bold">Ø${(r2*2).toFixed(1)}</text>`;
 
-  // Labels
-  html += `<text x="${pz(-insR*0.3)}" y="${pr(r1)-10}" font-size="9" fill="${orange}" text-anchor="middle" font-family="monospace">Ø${(r1*2).toFixed(1)}</text>`;
-  html += `<text x="${pz(arcL*1.1)}" y="${pr(r2)-8}" font-size="9" fill="${orange}" text-anchor="start" font-family="monospace">Ø${(r2*2).toFixed(1)}</text>`;
+  // Origin marker — red cross
+  const ox = pz(0), oy = pr(r1), arm = 6;
+  html += `<line x1="${ox-arm}" y1="${oy}" x2="${ox+arm}" y2="${oy}" stroke="#cc0000" stroke-width="1.5"/>`;
+  html += `<line x1="${ox}" y1="${oy-arm}" x2="${ox}" y2="${oy+arm}" stroke="#cc0000" stroke-width="1.5"/>`;
+  html += `<text x="${ox+8}" y="${oy-4}" font-size="9" fill="#cc0000" font-family="monospace" font-weight="bold">Z0</text>`;
+
+  // R label
   html += `<text x="${pz(arcL*0.4)}" y="${pr((r1+r2)/2)-10}" font-size="9" fill="${blue}" text-anchor="middle" font-family="monospace">R${R.toFixed(1)}</text>`;
 
-  // L dimension
+  // L dimension arrow along Z axis
   const dimY = pr(0) + 14;
   html += `<line x1="${pz(0)}" y1="${dimY}" x2="${pz(arcL)}" y2="${dimY}" stroke="${grey}" stroke-width="1"/>`;
   html += `<polygon points="${pz(0)},${dimY} ${pz(0)+5},${dimY-3} ${pz(0)+5},${dimY+3}" fill="${grey}"/>`;
   html += `<polygon points="${pz(arcL)},${dimY} ${pz(arcL)-5},${dimY-3} ${pz(arcL)-5},${dimY+3}" fill="${grey}"/>`;
   html += `<text x="${pz(arcL/2)}" y="${dimY+11}" font-size="9" fill="${grey}" text-anchor="middle" font-family="monospace">L=${arcL.toFixed(2)}</text>`;
 
-  // Draw circles
+  // Draw circles at their CENTRE positions
   circles.forEach((c, i) => {
     const isFirst = i === 0;
     const isLast  = i === circles.length - 1;
     const fill    = isFirst || isLast ? 'rgba(255,106,0,0.15)' : 'none';
-    const stroke  = blue;
-    html += `<circle cx="${pz(c.z)}" cy="${pr(c.r)}" r="${Math.max(1, insR*sc)}" fill="${fill}" stroke="${stroke}" stroke-width="0.8"/>`;
+    const drawZ   = c.cz !== undefined ? c.cz : c.z; // use centre if available
+    const drawR   = c.cr !== undefined ? c.cr : c.r;
+    html += `<circle cx="${pz(drawZ)}" cy="${pr(drawR)}" r="${Math.max(1, insR*sc)}" fill="${fill}" stroke="${blue}" stroke-width="0.8"/>`;
     if (isFirst || isLast || circles.length <= 8) {
-      html += `<text x="${pz(c.z)}" y="${pr(c.r)+3}" font-size="7" fill="${grey}" text-anchor="middle" font-family="monospace">${c.step}</text>`;
+      html += `<text x="${pz(drawZ)}" y="${pr(drawR)+3}" font-size="7" fill="${grey}" text-anchor="middle" font-family="monospace">${c.step}</text>`;
     }
   });
 
@@ -2357,15 +2463,17 @@ function arcClear() {
 }
 
 // Pinch zoom for arc preview
+let az=1, apx=0, apy=0;
+function applyArcZoom(){
+  const svg=document.getElementById('arc-svg');
+  const w=300/az,h=200/az;
+  const cx=150-apx,cy=100-apy;
+  svg.setAttribute('viewBox',`${cx-w/2} ${cy-h/2} ${w} ${h}`);
+}
+
 (function() {
-  let az=1, apx=0, apy=0, at0=null, ad0=null;
+  let at0=null, ad0=null;
   function tdist(a,b){return Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);}
-  function applyArcZoom(){
-    const svg=document.getElementById('arc-svg');
-    const w=300/az,h=200/az;
-    const cx=150-apx,cy=100-apy;
-    svg.setAttribute('viewBox',`${cx-w/2} ${cy-h/2} ${w} ${h}`);
-  }
   window.addEventListener('load',()=>{
     const el=document.getElementById('arc-preview-wrap');
     if(!el)return;
