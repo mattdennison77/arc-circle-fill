@@ -1,7 +1,8 @@
-const CACHE_NAME = 'coord-stepper-v1.0.1';
+const CACHE_NAME = 'coord-stepper-v1.4.5';
 const ASSETS = [
   '/arc-circle-fill/stepper.html',
   '/arc-circle-fill/manifest.json',
+  '/arc-circle-fill/sw.js',
 ];
 
 // Install — cache app shell
