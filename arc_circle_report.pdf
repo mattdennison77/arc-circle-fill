@@ -3,13 +3,16 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>
 endobj
 3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 5 0 R /Resources << /Font << /F1 7 0 R >> >> >>
 endobj
 4 0 obj
-<< /Length 11434 >>
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 6 0 R /Resources << /Font << /F1 7 0 R >> >> >>
+endobj
+5 0 obj
+<< /Length 12698 >>
 stream
 BT
 /F1 14 Tf
@@ -19,7 +22,7 @@ ET
 BT
 /F1 9 Tf
 40 796 Td
-(Insert diameter: 4.0mm   Cusp height: 0.04mm   Step spacing: 0.7960mm   Total: 16   v1.2.8) Tj
+(Insert diameter: 4.0mm   Step spacing: 0.7500mm   Total circles: 31   v1.3.0) Tj
 ET
 0.85 0.85 0.85 RG
 40 431 515 321 re S
@@ -182,7 +185,7 @@ ET
 BT
 /F1 11 Tf
 40 411 Td
-(Circle Centre Coordinates  -  Page 1 of 1) Tj
+(Circle Centre Coordinates  -  Page 1 of 2) Tj
 ET
 0.2 0.3 0.6 rg
 40 391 515 14 re f
@@ -219,13 +222,13 @@ ET
 BT
 /F1 8 Tf
 40 367 Td
-(3) Tj
+(2) Tj
 50 0 Td
 (2) Tj
 60 0 Td
-(-0.2159) Tj
+(0.3506) Tj
 120 0 Td
-(-10.3848) Tj
+(-9.7546) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -240,9 +243,9 @@ BT
 50 0 Td
 (3) Tj
 60 0 Td
-(-1.7455) Tj
+(-0.2159) Tj
 120 0 Td
-(-11.5170) Tj
+(-10.3848) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -255,9 +258,9 @@ BT
 50 0 Td
 (4) Tj
 60 0 Td
-(-3.7478) Tj
+(-0.9160) Tj
 120 0 Td
-(-12.4469) Tj
+(-10.9728) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -268,13 +271,13 @@ ET
 BT
 /F1 8 Tf
 40 325 Td
-(4) Tj
+(3) Tj
 50 0 Td
 (5) Tj
 60 0 Td
-(-6.2224) Tj
+(-1.7455) Tj
 120 0 Td
-(-13.1302) Tj
+(-11.5170) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -283,13 +286,13 @@ ET
 BT
 /F1 8 Tf
 40 311 Td
-(4) Tj
+(3) Tj
 50 0 Td
 (6) Tj
 60 0 Td
-(-9.1016) Tj
+(-2.6935) Tj
 120 0 Td
-(-13.4093) Tj
+(-12.0106) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -300,13 +303,13 @@ ET
 BT
 /F1 8 Tf
 40 297 Td
-(5) Tj
+(3) Tj
 50 0 Td
 (7) Tj
 60 0 Td
-(-11.9869) Tj
+(-3.7478) Tj
 120 0 Td
-(-13.2417) Tj
+(-12.4469) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -315,13 +318,13 @@ ET
 BT
 /F1 8 Tf
 40 283 Td
-(5) Tj
+(3) Tj
 50 0 Td
 (8) Tj
 60 0 Td
-(-14.7876) Tj
+(-4.8945) Tj
 120 0 Td
-(-12.8276) Tj
+(-12.8204) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -332,13 +335,13 @@ ET
 BT
 /F1 8 Tf
 40 269 Td
-(5) Tj
+(4) Tj
 50 0 Td
 (9) Tj
 60 0 Td
-(-17.4378) Tj
+(-6.2224) Tj
 120 0 Td
-(-12.2138) Tj
+(-13.1302) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -347,13 +350,13 @@ ET
 BT
 /F1 8 Tf
 40 255 Td
-(5) Tj
+(4) Tj
 50 0 Td
 (10) Tj
 60 0 Td
-(-19.8810) Tj
+(-7.6391) Tj
 120 0 Td
-(-11.4137) Tj
+(-13.3288) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -364,13 +367,13 @@ ET
 BT
 /F1 8 Tf
 40 241 Td
-(6) Tj
+(4) Tj
 50 0 Td
 (11) Tj
 60 0 Td
-(-22.1170) Tj
+(-9.1016) Tj
 120 0 Td
-(-10.4471) Tj
+(-13.4093) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -379,13 +382,13 @@ ET
 BT
 /F1 8 Tf
 40 227 Td
-(6) Tj
+(4) Tj
 50 0 Td
 (12) Tj
 60 0 Td
-(-24.2209) Tj
+(-10.5707) Tj
 120 0 Td
-(-9.4096) Tj
+(-13.3695) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -396,13 +399,13 @@ ET
 BT
 /F1 8 Tf
 40 213 Td
-(6) Tj
+(5) Tj
 50 0 Td
 (13) Tj
 60 0 Td
-(-26.2036) Tj
+(-11.9869) Tj
 120 0 Td
-(-8.3140) Tj
+(-13.2417) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -411,13 +414,13 @@ ET
 BT
 /F1 8 Tf
 40 199 Td
-(6) Tj
+(5) Tj
 50 0 Td
 (14) Tj
 60 0 Td
-(-28.0586) Tj
+(-13.4024) Tj
 120 0 Td
-(-7.1638) Tj
+(-13.0602) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -428,13 +431,13 @@ ET
 BT
 /F1 8 Tf
 40 185 Td
-(6) Tj
+(5) Tj
 50 0 Td
 (15) Tj
 60 0 Td
-(-29.7800) Tj
+(-14.7876) Tj
 120 0 Td
-(-5.9629) Tj
+(-12.8276) Tj
 ET
 0.8 0.8 0.8 RG
 0.3 w
@@ -443,9 +446,285 @@ ET
 BT
 /F1 8 Tf
 40 171 Td
-(6) Tj
+(5) Tj
 50 0 Td
 (16) Tj
+60 0 Td
+(-16.1351) Tj
+120 0 Td
+(-12.5449) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 167 m 555 167 l S
+0.93 0.95 1.0 rg
+40 153 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 157 Td
+(5) Tj
+50 0 Td
+(17) Tj
+60 0 Td
+(-17.4378) Tj
+120 0 Td
+(-12.2138) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 153 m 555 153 l S
+0 0 0 rg
+BT
+/F1 8 Tf
+40 143 Td
+(5) Tj
+50 0 Td
+(18) Tj
+60 0 Td
+(-18.6886) Tj
+120 0 Td
+(-11.8361) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 139 m 555 139 l S
+0.93 0.95 1.0 rg
+40 125 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 129 Td
+(5) Tj
+50 0 Td
+(19) Tj
+60 0 Td
+(-19.8810) Tj
+120 0 Td
+(-11.4137) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 125 m 555 125 l S
+0 0 0 rg
+BT
+/F1 8 Tf
+40 115 Td
+(5) Tj
+50 0 Td
+(20) Tj
+60 0 Td
+(-21.0084) Tj
+120 0 Td
+(-10.9489) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 111 m 555 111 l S
+0.93 0.95 1.0 rg
+40 97 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 101 Td
+(6) Tj
+50 0 Td
+(21) Tj
+60 0 Td
+(-22.1170) Tj
+120 0 Td
+(-10.4471) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 97 m 555 97 l S
+0 0 0 rg
+BT
+/F1 8 Tf
+40 87 Td
+(6) Tj
+50 0 Td
+(22) Tj
+60 0 Td
+(-23.1837) Tj
+120 0 Td
+(-9.9358) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 83 m 555 83 l S
+0.93 0.95 1.0 rg
+40 69 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 73 Td
+(6) Tj
+50 0 Td
+(23) Tj
+60 0 Td
+(-24.2209) Tj
+120 0 Td
+(-9.4096) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 69 m 555 69 l S
+0 0 0 rg
+BT
+/F1 8 Tf
+40 59 Td
+(6) Tj
+50 0 Td
+(24) Tj
+60 0 Td
+(-25.2279) Tj
+120 0 Td
+(-8.8688) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 55 m 555 55 l S
+0.5 0.5 0.5 rg
+BT
+/F1 8 Tf
+277 20 Td
+(Page 1 of 2) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Length 1526 >>
+stream
+BT
+/F1 11 Tf
+40 812 Td
+(Circle Centre Coordinates  -  Page 2 of 2) Tj
+ET
+BT
+/F1 8 Tf
+40 796 Td
+(Insert diameter: 4.0mm   Cusp height: N/Amm   Step spacing: 0.7500mm   v1.3.0) Tj
+ET
+0.2 0.3 0.6 rg
+40 760 515 14 re f
+1 1 1 rg
+BT
+/F1 9 Tf
+40 764 Td
+(Arc) Tj
+50 0 Td
+(Circle) Tj
+60 0 Td
+(X (dia) (mm)) Tj
+120 0 Td
+(Z (mm)) Tj
+ET
+0.93 0.95 1.0 rg
+40 746 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 750 Td
+(6) Tj
+50 0 Td
+(25) Tj
+60 0 Td
+(-26.2036) Tj
+120 0 Td
+(-8.3140) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 746 m 555 746 l S
+0 0 0 rg
+BT
+/F1 8 Tf
+40 736 Td
+(6) Tj
+50 0 Td
+(26) Tj
+60 0 Td
+(-27.1475) Tj
+120 0 Td
+(-7.7455) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 732 m 555 732 l S
+0.93 0.95 1.0 rg
+40 718 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 722 Td
+(6) Tj
+50 0 Td
+(27) Tj
+60 0 Td
+(-28.0586) Tj
+120 0 Td
+(-7.1638) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 718 m 555 718 l S
+0 0 0 rg
+BT
+/F1 8 Tf
+40 708 Td
+(6) Tj
+50 0 Td
+(28) Tj
+60 0 Td
+(-28.9364) Tj
+120 0 Td
+(-6.5695) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 704 m 555 704 l S
+0.93 0.95 1.0 rg
+40 690 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 694 Td
+(6) Tj
+50 0 Td
+(29) Tj
+60 0 Td
+(-29.7800) Tj
+120 0 Td
+(-5.9629) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 690 m 555 690 l S
+0 0 0 rg
+BT
+/F1 8 Tf
+40 680 Td
+(6) Tj
+50 0 Td
+(30) Tj
+60 0 Td
+(-30.5888) Tj
+120 0 Td
+(-5.3445) Tj
+ET
+0.8 0.8 0.8 RG
+0.3 w
+40 676 m 555 676 l S
+0.93 0.95 1.0 rg
+40 662 515 14 re f
+0 0 0 rg
+BT
+/F1 8 Tf
+40 666 Td
+(6) Tj
+50 0 Td
+(31) Tj
 60 0 Td
 (-31.3621) Tj
 120 0 Td
@@ -453,28 +732,30 @@ BT
 ET
 0.8 0.8 0.8 RG
 0.3 w
-40 167 m 555 167 l S
+40 662 m 555 662 l S
 0.5 0.5 0.5 rg
 BT
 /F1 8 Tf
 277 20 Td
-(Page 1 of 1) Tj
+(Page 2 of 2) Tj
 ET
 endstream
 endobj
-5 0 obj
+7 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 xref
-0 6
+0 8
 0000000000 65535 f 
 0000000009 00000 n 
 0000000058 00000 n 
-0000000115 00000 n 
-0000000241 00000 n 
-0000011728 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000000373 00000 n 
+0000013124 00000 n 
+0000014702 00000 n 
 trailer
-<< /Size 6 /Root 1 0 R >>
+<< /Size 8 /Root 1 0 R >>
 startxref
-11798
+14772
 %%EOF
