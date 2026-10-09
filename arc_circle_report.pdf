@@ -9,7 +9,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
 endobj
 4 0 obj
-<< /Length 11420 >>
+<< /Length 11434 >>
 stream
 BT
 /F1 14 Tf
@@ -19,7 +19,7 @@ ET
 BT
 /F1 9 Tf
 40 796 Td
-(Insert diameter: 4.0mm   Step spacing: 0.7500mm   Total circles: 16   v1.2.8) Tj
+(Insert diameter: 4.0mm   Cusp height: 0.04mm   Step spacing: 0.7960mm   Total: 16   v1.2.8) Tj
 ET
 0.85 0.85 0.85 RG
 40 431 515 321 re S
@@ -472,9 +472,9 @@ xref
 0000000058 00000 n 
 0000000115 00000 n 
 0000000241 00000 n 
-0000011714 00000 n 
+0000011728 00000 n 
 trailer
 << /Size 6 /Root 1 0 R >>
 startxref
-11784
+11798
 %%EOF
